@@ -3,6 +3,7 @@ include = ["scripts", "typings"]
 typeCheckingMode = "strict"
 pythonVersion = "3.14"
 stubPath = "typings"
+extraPaths = [".devenv/profile/lib/python3.14/site-packages"]
 
 [tool.ruff]
 target-version = "py314"

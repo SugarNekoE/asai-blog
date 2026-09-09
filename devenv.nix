@@ -15,8 +15,6 @@
   packages = with pkgs; [
     just
     poppler-utils
-    python3Packages.fonttools
-    python3Packages.brotli
     yaml-language-server
     package-version-server
     vscode-css-languageserver
@@ -47,7 +45,10 @@
     };
     python = {
       enable = true;
-      version = "3.14";
+      package = pkgs.python314.withPackages (p: [
+        p.fonttools
+        p.brotli
+      ]);
       lsp.enable = true;
     };
   };
