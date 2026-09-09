@@ -2,11 +2,24 @@
 
 {
   env = pkgs.lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
-    MINIFLARE_WORKERD_PATH = toString (import ./nix/preview-runtime.nix { inherit pkgs; });
+    MINIFLARE_WORKERD_PATH = toString (
+      pkgs.writeShellScript "asai-workerd" ''
+        exec ${pkgs.stdenv.cc.bintools.dynamicLinker} \
+          "$PWD/node_modules/@cloudflare/workerd-linux-${
+            if pkgs.stdenv.hostPlatform.isAarch64 then "arm64" else "64"
+          }/bin/workerd" "$@"
+      ''
+    );
   };
 
   packages = with pkgs; [
     just
+    ormolu
+    nixfmt
+    ruff
+    poppler-utils
+    python3Packages.fonttools
+    python3Packages.brotli
     elmPackages.elm-format
     yaml-language-server
     package-version-server

@@ -8,3 +8,20 @@ devenv.local.yaml
 
 # pre-commit
 .pre-commit-config.yaml
+
+# Build products and local dependency caches
+_site/
+_cache/
+.build/
+dist-newstyle/
+frontend/elm-stuff/
+static/assets/elm.js
+node_modules/
+test-results/
+.elm-home/
+.cabal-home/
+content/.obsidian/workspace*.json
+content/.obsidian/cache/
+content/.trash/
+.wrangler/
+.ruff_cache/

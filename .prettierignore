@@ -1,0 +1,23 @@
+# Generated files, dependency caches, and tooling state
+_site/
+_cache/
+.build/
+dist-newstyle/
+node_modules/
+frontend/elm-stuff/
+static/assets/elm.js
+static/assets/noto.css
+test-results/
+.devenv*/
+.direnv/
+.elm-home/
+.cabal-home/
+.wrangler/
+.git/
+.agents/
+.codex/
+package-lock.json
+devenv.lock
+content/.obsidian/workspace*.json
+content/.obsidian/cache/
+content/.trash/
