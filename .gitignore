@@ -25,3 +25,4 @@ content/.obsidian/cache/
 content/.trash/
 .wrangler/
 .ruff_cache/
+__pycache__/

@@ -1,34 +1,38 @@
 """Check the published artifact, including its Elm data contract and local links."""
 
-import json
 import re
+import xml.etree.ElementTree as ET
 from html.parser import HTMLParser
 from pathlib import Path
+from typing import override
 from urllib.parse import unquote, urljoin, urlsplit
-import xml.etree.ElementTree as ET
+
+from site_data import read_index
 
 ROOT = Path(__file__).resolve().parent.parent
 SITE = ROOT / "_site"
 
 
 class Page(HTMLParser):
-    def __init__(self, text):
+    def __init__(self, text: str) -> None:
         super().__init__()
-        self.ids = set()
-        self.links = []
+        self.ids: set[str] = set()
+        self.links: list[str] = []
         self.feed(text)
 
-    def handle_starttag(self, tag, attrs):
-        attrs = dict(attrs)
-        if "id" in attrs:
-            self.ids.add(attrs["id"])
+    @override
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        attributes = dict(attrs)
+        identifier = attributes.get("id")
+        if identifier is not None:
+            self.ids.add(identifier)
         for key in ("href", "src"):
-            if key in attrs:
-                self.links.append(attrs[key])
+            link = attributes.get(key)
+            if link is not None:
+                self.links.append(link)
 
 
-data = json.loads((SITE / "api/posts.json").read_text())
-assert data["version"] == 2
+data = read_index(SITE / "api/posts.json")
 posts = data["posts"]
 assert len({post["url"] for post in posts}) == len(posts), "Duplicate post URLs"
 assert [post["date"] for post in posts] == sorted(
@@ -38,13 +42,7 @@ assert len(posts) == len(list((SITE / "posts").rglob("index.html"))), (
     "Article count differs from index"
 )
 for post in posts:
-    for key in ("title", "description", "searchText", "date", "url", "category"):
-        assert isinstance(post[key], str) and post[key], f"Invalid {key}"
     assert re.fullmatch(r"\d{4}-\d{2}-\d{2}", post["date"])
-    assert isinstance(post["tags"], list) and all(
-        isinstance(t, str) for t in post["tags"]
-    )
-    assert isinstance(post["readingMinutes"], int) and post["readingMinutes"] >= 1
     assert (SITE / post["url"].lstrip("/")).is_file()
     sources = list(
         (ROOT / "content/posts").rglob(Path(post["url"]).parent.name + ".md")

@@ -1,20 +1,29 @@
 """Exercise authoring boundaries in a disposable vault, using the real compiler."""
 
-import json
-from pathlib import Path
 import shutil
 import subprocess
 import tempfile
+from pathlib import Path
+
+from site_data import read_index
 
 ROOT = Path(__file__).resolve().parent.parent
-if subprocess.run(["ghc-pkg", "latest", "hakyll"], capture_output=True).returncode == 0:
-    BINARY = ROOT / ".build/site"
-else:
-    BINARY = Path(
+
+
+def compiler_binary() -> Path:
+    if (
+        subprocess.run(["ghc-pkg", "latest", "hakyll"], capture_output=True).returncode
+        == 0
+    ):
+        return ROOT / ".build/site"
+    return Path(
         subprocess.check_output(
             ["cabal", "list-bin", "site"], cwd=ROOT, text=True
         ).strip()
     )
+
+
+BINARY = compiler_binary()
 
 with tempfile.TemporaryDirectory(prefix="asai-compiler-") as temporary:
     vault = Path(temporary)
@@ -57,7 +66,7 @@ plain code
 """
     note.write_text(source)
 
-    def build(success=True):
+    def build(success: bool = True) -> str:
         result = subprocess.run(
             [str(BINARY), "rebuild"], cwd=vault, text=True, capture_output=True
         )
@@ -65,7 +74,7 @@ plain code
         return result.stdout + result.stderr
 
     build()
-    index = json.loads((vault / "_site/api/posts.json").read_text())
+    index = read_index(vault / "_site/api/posts.json")
     post = index["posts"][0]
     assert post["title"] == '中文 & "types"'
     assert "中文" in post["searchText"] and "λ" in post["searchText"]
@@ -90,14 +99,14 @@ plain code
     note.rename(moved)
     note = moved
     build()
-    moved_post = json.loads((vault / "_site/api/posts.json").read_text())["posts"][0]
+    moved_post = read_index(vault / "_site/api/posts.json")["posts"][0]
     assert moved_post["category"] == "moved"
     assert moved_post["url"] == post["url"]
 
     note.write_text(source.replace("status: published", "status: draft"))
     build()
     assert not (vault / "_site/posts/fixture/index.html").exists()
-    assert json.loads((vault / "_site/api/posts.json").read_text())["posts"] == []
+    assert read_index(vault / "_site/api/posts.json")["posts"] == []
 
     public = vault / "content/posts/moved/public.md"
     public.write_text(
