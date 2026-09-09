@@ -206,8 +206,8 @@ launcherResult actions active index post =
         [ span [ class "launcher-result-title", css [ DialogStyles.launcherResultTitle ] ] [ text post.title ]
         , span [ class "launcher-result-description", css [ DialogStyles.launcherResultDescription ] ] [ text post.description ]
         , span [ class "launcher-result-meta", css [ DialogStyles.launcherResultMeta ] ]
-            ([ text ("/" ++ post.category ++ " · ") ]
-                ++ List.intersperse (text " ")
+            (text ("/" ++ post.category ++ " · ")
+                :: List.intersperse (text " ")
                     (List.map
                         (\tag ->
                             span [ class "launcher-tag", css [ DialogStyles.launcherTag ], attribute "data-tag" tag ] [ text ("#" ++ tag) ]

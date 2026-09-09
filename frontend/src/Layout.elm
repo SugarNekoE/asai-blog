@@ -3,7 +3,7 @@ module Layout exposing (Actions, PageTimings, State, view)
 import BrowserClock exposing (Clock)
 import Html.Styled as Html exposing (..)
 import Html.Styled.Attributes exposing (..)
-import Html.Styled.Events as Events exposing (onClick)
+import Html.Styled.Events exposing (onClick)
 import Post exposing (Heading, Post)
 import Set
 import Styles.Footer as FooterStyles

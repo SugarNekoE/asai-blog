@@ -138,7 +138,7 @@ resolveNote target = do
     else do
       ids <- publishedPosts
       case filter ((== base) . takeBaseName . toFilePath) ids of
-        [ident] -> pure $ T.pack ("/" ++ postRoute ident) <> anchor
+        [ident] -> pure $ T.pack ('/' : postRoute ident) <> anchor
         [] -> fail $ "Wiki link targets a missing or unpublished note: " ++ T.unpack target
         _ -> fail $ "Ambiguous wiki link; use unique note filenames: " ++ T.unpack target
 
@@ -150,7 +150,7 @@ postInfo item = do
   category <- postCategory ident
   date <- formatTime defaultTimeLocale "%b %d, %Y" <$> getItemUTC defaultTimeLocale ident
   url <- getRoute ident
-  pure $ Views.PostInfo title description date category ("/" ++ fromMaybe "" url)
+  pure $ Views.PostInfo title description date category ('/' : fromMaybe "" url)
 
 postCtx :: Context String
 postCtx =
@@ -182,7 +182,7 @@ postJson item = do
         "tags" .= tags,
         "category" .= category,
         "date" .= formatTime defaultTimeLocale "%Y-%m-%d" date,
-        "url" .= ("/" ++ fromMaybe "" url),
+        "url" .= ('/' : fromMaybe "" url),
         "readingMinutes" .= minutes,
         "searchText" .= plain
       ]
