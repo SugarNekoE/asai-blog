@@ -38,6 +38,7 @@
         p.hakyll
         p.pandoc
         p.aeson
+        p.blaze-html
       ]);
       cabal.enable = true;
       lsp.enable = true;
