@@ -1,0 +1,27 @@
+@font-face {
+  font-family: 'Noto Sans Symbols';
+  src: url('/assets/fonts/NotoSansSymbols.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  unicode-range: U+2190-2BFF, U+1F000-1FAFF;
+}
+
+@font-face {
+  font-family: 'Noto Sans Symbols 2';
+  src: url('/assets/fonts/NotoSansSymbols2-Regular.otf') format('opentype');
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  unicode-range: U+2190-2BFF, U+1F000-1FAFF;
+}
+
+:root {
+  --sans:
+    'Noto Sans', 'Noto Sans CJK SC', 'Noto Sans Symbols', 'Noto Sans Symbols 2', system-ui,
+    sans-serif;
+  --mono:
+    'Noto Sans Mono', 'Noto Sans Mono CJK SC', 'Noto Sans Symbols', 'Noto Sans Symbols 2',
+    ui-monospace, monospace;
+  --symbols: 'Noto Sans Symbols 2', 'Noto Sans Symbols', 'Noto Sans', sans-serif;
+}

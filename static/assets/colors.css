@@ -1,0 +1,98 @@
+:root {
+  color-scheme: dark;
+
+  --monokai-pro-red: #ff6188;
+  --monokai-pro-orange: #fc9867;
+  --monokai-pro-yellow: #ffd866;
+  --monokai-pro-green: #a9dc76;
+  --monokai-pro-blue: #78dce8;
+  --monokai-pro-purple: #ab9df2;
+
+  --bg: #242225;
+  --sidebar: #201e21;
+  --surface: #2d2a2e;
+  --hover: #353237;
+  --border: #3b373e;
+  --text: #eeeae5;
+  --muted: #aaa4ae;
+  --faint: #827b87;
+
+  --accent: var(--monokai-pro-green);
+  --category-color: var(--monokai-pro-purple);
+  --quote-color: var(--monokai-pro-purple);
+  --inline-code-color: var(--monokai-pro-yellow);
+  --selection-color: color-mix(in srgb, var(--monokai-pro-purple) 30%, transparent);
+  --active-background: color-mix(in srgb, var(--accent) 5%, transparent);
+
+  --syntax-keyword: var(--monokai-pro-red);
+  --syntax-type: var(--monokai-pro-blue);
+  --syntax-string: var(--monokai-pro-yellow);
+  --syntax-number: var(--monokai-pro-purple);
+  --syntax-comment: var(--faint);
+  --syntax-function: var(--monokai-pro-green);
+
+  --tag-default: var(--monokai-pro-purple);
+  --tag-background-opacity: 6%;
+  --tag-border-opacity: 18%;
+  --tag-selected-border-opacity: 60%;
+
+  --hint-background: var(--monokai-pro-yellow);
+  --hint-text: var(--bg);
+  --hint-border: var(--bg);
+  --backdrop: rgb(0 0 0 / 70%);
+  --shadow-dialog: #0008;
+  --shadow-popover: #0003;
+  --shadow-hint: #0006;
+  --shadow-panel: #0004;
+
+  --print-paper: #ffffff;
+  --print-text: #000000;
+  --print-muted: #333333;
+  --print-border: #bdbdbd;
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  --monokai-pro-red: #b5355b;
+  --monokai-pro-orange: #a14c22;
+  --monokai-pro-yellow: #875d00;
+  --monokai-pro-green: #427127;
+  --monokai-pro-blue: #25707b;
+  --monokai-pro-purple: #7058b6;
+
+  --bg: #faf8f4;
+  --sidebar: #f0ede8;
+  --surface: #f4f1eb;
+  --hover: #e8e4dd;
+  --border: #d9d4cb;
+  --text: #302c32;
+  --muted: #635c68;
+  --faint: #746c77;
+}
+
+[data-tag] {
+  --tag-color: var(--tag-default);
+}
+
+[data-tag='haskell'] {
+  --tag-color: var(--monokai-pro-purple);
+}
+
+[data-tag='elm'] {
+  --tag-color: var(--monokai-pro-blue);
+}
+
+[data-tag='systems'],
+[data-tag='nix'] {
+  --tag-color: var(--monokai-pro-orange);
+}
+
+[data-tag='web'] {
+  --tag-color: var(--monokai-pro-green);
+}
+
+[data-tag='notes'],
+[data-tag='obsidian'] {
+  --tag-color: var(--monokai-pro-yellow);
+}
