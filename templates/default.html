@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark light" />
+    <title>$title$ · Asai Blog</title>
+    <meta name="description" content="$description$" />
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+    <link rel="alternate" type="application/atom+xml" title="Asai Blog" href="/feed.xml" />
+    <link rel="stylesheet" href="/assets/noto.css?v=1" />
+    <link rel="stylesheet" href="/assets/fonts.css?v=noto-bundled-1" />
+    <link rel="stylesheet" href="/assets/colors.css?v=1" />
+    <link rel="stylesheet" href="/assets/style.css?v=note-hover-1" />
+    <link rel="stylesheet" href="/assets/print.css?v=3" media="print" />
+    <script src="/assets/theme.js"></script>
+    <script src="/assets/loading.js"></script>
+    <script defer src="/assets/elm.js?v=escape-focus-1"></script>
+    <script defer src="/assets/code-blocks.js?v=1"></script>
+    <script defer src="/assets/boot.js?v=escape-focus-1"></script>
+  </head>
+  <body data-page="$page$" data-category="$category$">
+    <section id="loading-screen" class="loading-screen" aria-labelledby="loading-title" hidden>
+      <div class="loading-content">
+        <div id="loading-title" class="loading-title" role="heading" aria-level="1">
+          Please Be Patient
+        </div>
+        <p id="loading-status" role="status" aria-live="polite">loading assets...</p>
+        <div class="loading-progress" aria-hidden="true"></div>
+      </div>
+    </section>
+    <div id="app">
+      <div class="fallback">
+        <nav aria-label="Main">
+          <a class="brand" href="/">λ Asai Blog</a>
+          <span class="muted">/ $breadcrumb$</span>
+          <a href="/feed.xml">RSS ↗</a>
+        </nav>
+        <main id="static-content">$body$</main>
+        <footer>Written in Markdown. Built with Hakyll & Elm.</footer>
+      </div>
+    </div>
+  </body>
+</html>
