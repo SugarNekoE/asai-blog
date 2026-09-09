@@ -1,0 +1,7 @@
+{
+  "attachmentFolderPath": "attachments",
+  "newFileLocation": "folder",
+  "newFileFolderPath": "posts/notes",
+  "useMarkdownLinks": false,
+  "newLinkFormat": "shortest"
+}
