@@ -53,4 +53,13 @@
       version = "3.14";
     };
   };
+
+  git-hooks = {
+    enable = true;
+    hooks = {
+      convco = {
+        enable = true;
+      };
+    };
+  };
 }
