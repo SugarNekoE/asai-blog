@@ -15,6 +15,34 @@ test.beforeEach(async ({ page }) => {
   await page.route('**/api/posts.json', (route) => route.fulfill({ json: { version: 2, posts } }));
 });
 
+test('Elm query state preserves repeated tags, encoded values, extra parameters, and current anchors', async ({
+  page,
+}) => {
+  await page.goto(
+    '/?category=web&tag=even&tag=shared&q=Entry+0&page=2&perPage=30&sort=oldest&campaign=%E4%B8%AD%E6%96%87+a%2Bb%3Dc#main',
+  );
+  await expect(page.locator('.post-row')).toHaveCount(10);
+  const search = page.getByRole('searchbox');
+  await expect(search).toHaveValue('Entry 0');
+  await expect(page.locator('.selected-tag')).toHaveCount(2);
+  await page.evaluate(() => {
+    location.hash = 'notebook-heading';
+  });
+  await search.fill('Entry 001');
+  await expect.poll(() => new URL(page.url()).searchParams.get('q')).toBe('Entry 001');
+  const url = new URL(page.url());
+  expect(url.searchParams.getAll('tag')).toEqual(['even', 'shared']);
+  expect(url.searchParams.get('category')).toBe('web');
+  expect(url.searchParams.get('perPage')).toBe('30');
+  expect(url.searchParams.get('sort')).toBe('oldest');
+  expect(url.searchParams.get('campaign')).toBe('中文 a+b=c');
+  expect(url.searchParams.has('page')).toBe(false);
+  expect(url.hash).toBe('#notebook-heading');
+  await page.reload();
+  await expect(search).toHaveValue('Entry 001');
+  await expect(page.locator('.post-row')).toHaveCount(1);
+});
+
 test('default pages contain at most ten notes with working boundaries and reloads', async ({
   page,
 }) => {

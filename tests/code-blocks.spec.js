@@ -101,7 +101,7 @@ test('static articles keep language labels without showing inactive copy buttons
     const page = await context.newPage();
     await page.goto(article);
     await expect(page.locator('.code-language')).toHaveText(['haskell', 'elm']);
-    await expect(page.locator('.code-copy')).toHaveCount(0);
+    for (const copy of await page.locator('.code-copy').all()) await expect(copy).toBeHidden();
     await expect(page.locator('pre code').first()).toBeVisible();
   } finally {
     await context.close();

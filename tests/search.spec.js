@@ -1,5 +1,70 @@
 const { test, expect } = require('@playwright/test');
 
+test('search navigation survives pointer selection and keeps focus off panel containers', async ({
+  page,
+}) => {
+  await page.goto('/');
+  await expect(page.locator('.workspace')).toBeVisible();
+  await page.keyboard.press('/');
+  const dialog = page.locator('#search-dialog');
+  const search = dialog.getByRole('combobox');
+  const results = dialog.getByRole('option');
+  await expect(search).toBeFocused();
+  await dialog.locator('#search-dialog-title').click();
+  await expect(search).toBeFocused();
+  await results.nth(1).hover();
+  await expect(results.nth(1)).toHaveAttribute('aria-selected', 'true');
+  for (const index of [2, 3, 0]) {
+    await page.keyboard.press('ArrowDown');
+    await expect(results.nth(index)).toHaveAttribute('aria-selected', 'true');
+    await expect(search).toBeFocused();
+    await expect(dialog).not.toBeFocused();
+    await expect(dialog).toHaveCSS('outline-style', 'none');
+  }
+  await page.mouse.move(0, 0);
+  await results.nth(2).focus();
+  await expect(results.nth(2)).toHaveAttribute('aria-selected', 'true');
+  await page.keyboard.press('ArrowUp');
+  await expect(results.nth(1)).toHaveAttribute('aria-selected', 'true');
+  await expect(search).toBeFocused();
+  await dialog.locator('.launcher-results').evaluate((node) => node.focus());
+  await expect(search).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(page).toHaveURL(/\/posts\/types-as-design-tools\/index.html$/);
+});
+
+test('keymap containers never keep focus and native close-button keys still work', async ({
+  page,
+}) => {
+  await page.goto('/');
+  await expect(page.locator('.workspace')).toBeVisible();
+  await page.keyboard.press('?');
+  const dialog = page.locator('#keymap-dialog');
+  const close = dialog.getByRole('button', { name: 'Close keyboard shortcuts', exact: true });
+  await expect(close).toBeFocused();
+  await dialog.locator('#keymap-title').click();
+  await expect(close).toBeFocused();
+  await dialog.locator('.keymap-row dd').first().click();
+  await expect(close).toBeFocused();
+  for (const key of ['ArrowDown', 'ArrowUp', 'Tab', 'Shift+Tab']) {
+    await page.keyboard.press(key);
+    await expect(close).toBeFocused();
+    await expect(dialog).not.toBeFocused();
+    await expect(dialog).toHaveCSS('outline-style', 'none');
+  }
+  await dialog.evaluate((node) => node.focus());
+  await expect(close).toBeFocused();
+  await close.press('Enter');
+  await expect(dialog).not.toBeVisible();
+  await page.keyboard.press('/');
+  const searchDialog = page.locator('#search-dialog');
+  const closeSearch = searchDialog.getByRole('button', { name: 'Close search', exact: true });
+  await closeSearch.focus();
+  await closeSearch.press('Enter');
+  await expect(searchDialog).not.toBeVisible();
+  await expect(page).toHaveURL('/');
+});
+
 test('search launcher finds title/description words, tags, categories, and combinations', async ({
   page,
 }) => {

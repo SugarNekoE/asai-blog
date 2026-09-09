@@ -3,18 +3,20 @@
 import Control.Monad (filterM)
 import Data.Aeson (Value, encode, object, (.=))
 import qualified Data.ByteString.Lazy as BL
-import Data.Maybe (fromMaybe, listToMaybe)
+import Data.Maybe (fromMaybe)
 import qualified Data.Text as T
 import Data.Text.Encoding (decodeUtf8)
 import Data.Time.Format (defaultTimeLocale, formatTime)
 import Hakyll hiding (isExternal)
+import Site.Markdown (codeBlockToolbar, headingId, headingsJson, readerOptions)
+import qualified Site.Page as Page
+import qualified Site.Views as Views
 import System.FilePath (makeRelative, splitDirectories, takeBaseName, takeExtension, takeFileName)
-import Text.Pandoc (Block (..), Extension (..), Inline (..), ReaderOptions (..), def, enableExtension, readMarkdown, runPure, writePlain)
-import Text.Pandoc.Walk (query, walk, walkM)
+import Text.Pandoc (Inline (..), def, runPure, writePlain)
+import Text.Pandoc.Walk (walk, walkM)
 
 main :: IO ()
 main = hakyll $ do
-  match "templates/*" $ compile templateBodyCompiler
   match "static/**" $ do
     route $ gsubRoute "static/" (const "")
     compile copyFileCompiler
@@ -32,10 +34,10 @@ main = hakyll $ do
       doc <- traverse (walkM resolveLink) parsed
       plain <- either (fail . show) (pure . T.unpack) $ runPure $ writePlain def $ itemBody doc
       _ <- makeItem plain >>= saveSnapshot "plain"
-      pure (writePandocWith defaultHakyllWriterOptions $ fmap (walk codeBlockToolbar) doc)
-        >>= saveSnapshot "content"
-        >>= loadAndApplyTemplate "templates/post.html" postCtx
-        >>= loadAndApplyTemplate "templates/default.html" (constField "page" "post" <> postCtx)
+      _ <- pure (writePandocWith defaultHakyllWriterOptions doc) >>= saveSnapshot "feed"
+      body <- pure (writePandocWith defaultHakyllWriterOptions $ fmap (walk codeBlockToolbar) doc) >>= saveSnapshot "content"
+      info <- postInfo body
+      makeItem $ Page.render (Page.post (Views.postTitle info) (Views.postDescription info) (Views.postCategory info)) (headingsJson $ itemBody doc) (Views.article info $ itemBody body)
 
   create ["api/posts.json"] $ do
     route idRoute
@@ -48,38 +50,19 @@ main = hakyll $ do
     route idRoute
     compile $ do
       posts <- loadPosts
-      let ctx =
-            listField "posts" postCtx (pure posts)
-              <> constField "title" "Field notes"
-              <> constField "description" "Notes on functional programming, small systems, and a quieter web."
-              <> constField "page" "index"
-              <> constField "category" ""
-              <> constField "breadcrumb" "All Notes"
-              <> defaultContext
-      makeItem ("" :: String)
-        >>= loadAndApplyTemplate "templates/index.html" ctx
-        >>= loadAndApplyTemplate "templates/default.html" ctx
+      infos <- mapM postInfo posts
+      makeItem $ Page.render Page.index "[]" (Views.index infos)
 
   create ["404.html"] $ do
     route idRoute
-    compile $
-      makeItem ("" :: String)
-        >>= loadAndApplyTemplate "templates/404.html" defaultContext
-        >>= loadAndApplyTemplate
-          "templates/default.html"
-          ( constField "title" "Page not found"
-              <> constField "description" "This path is unexplored."
-              <> constField "page" "404"
-              <> constField "category" ""
-              <> constField "breadcrumb" "Page not found"
-              <> defaultContext
-          )
+    compile $ makeItem $ Page.render Page.notFound "[]" Views.notFound
 
   create ["feed.xml"] $ do
     route idRoute
     compile $ do
       posts <- take 20 <$> loadPosts
-      renderAtom feedConfig (bodyField "description" <> postCtx) posts
+      articles <- mapM (\post -> loadSnapshot (itemIdentifier post) "feed") posts
+      renderAtom feedConfig (bodyField "description" <> postCtx) articles
 
 postRoute :: Identifier -> FilePath
 postRoute ident = "posts/" ++ takeBaseName (toFilePath ident) ++ "/index.html"
@@ -98,22 +81,6 @@ publishedPosts = filterM (\ident -> (== Just "published") <$> getMetadataField i
 
 loadPosts :: Compiler [Item String]
 loadPosts = recentFirst =<< (mapM (\ident -> loadSnapshot ident "content") =<< publishedPosts)
-
-readerOptions :: ReaderOptions
-readerOptions =
-  defaultHakyllReaderOptions
-    { readerExtensions = enableExtension Ext_wikilinks_title_after_pipe (readerExtensions defaultHakyllReaderOptions)
-    }
-
-codeBlockToolbar :: Block -> Block
-codeBlockToolbar block@(CodeBlock (_, classes, _) _) =
-  let language = fromMaybe "text" $ listToMaybe $ filter (`notElem` ["numberLines", "lineAnchors", "sourceCode", "literate"]) classes
-   in Div
-        ("", ["code-block"], [])
-        [ Div ("", ["code-toolbar"], []) [Plain [Span ("", ["code-language"], []) [Str language]]],
-          block
-        ]
-codeBlockToolbar block = block
 
 resolveLink :: Inline -> Compiler Inline
 resolveLink (Link attr@(_, classes, _) label (target, linkTitle))
@@ -175,12 +142,15 @@ resolveNote target = do
         [] -> fail $ "Wiki link targets a missing or unpublished note: " ++ T.unpack target
         _ -> fail $ "Ambiguous wiki link; use unique note filenames: " ++ T.unpack target
 
-headingId :: T.Text -> T.Text
-headingId heading = case runPure (readMarkdown readerOptions ("## " <> heading)) of
-  Right doc -> case query (\block -> case block of Header _ (ident, _, _) _ -> [ident]; _ -> []) doc of
-    ident : _ -> ident
-    _ -> heading
-  Left _ -> heading
+postInfo :: Item String -> Compiler Views.PostInfo
+postInfo item = do
+  let ident = itemIdentifier item
+  title <- getMetadataField' ident "title"
+  description <- getMetadataField' ident "description"
+  category <- postCategory ident
+  date <- formatTime defaultTimeLocale "%b %d, %Y" <$> getItemUTC defaultTimeLocale ident
+  url <- getRoute ident
+  pure $ Views.PostInfo title description date category ("/" ++ fromMaybe "" url)
 
 postCtx :: Context String
 postCtx =

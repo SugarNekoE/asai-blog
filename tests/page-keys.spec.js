@@ -1,5 +1,97 @@
 const { test, expect } = require('@playwright/test');
 
+test('mouse-focused categories and page-size controls do not gain Tab outlines from shortcuts', async ({
+  page,
+}) => {
+  await page.goto('/');
+  await expect(page.locator('.workspace')).toBeVisible();
+  const category = page.getByRole('button', { name: /^programming\b/ });
+  await page.keyboard.press('Tab');
+  await category.focus();
+  await expect(category).toHaveCSS('outline-style', 'solid');
+  await category.click();
+  await expect(category).toBeFocused();
+  await expect(category).toHaveCSS('outline-style', 'none');
+  await page.keyboard.press('f');
+  await expect(page.locator('.link-hints')).toBeVisible();
+  await expect(category).toBeFocused();
+  await expect(category).toHaveCSS('outline-style', 'none');
+  await page.keyboard.press('Escape');
+  await expect(page.locator('.link-hints')).toHaveCount(0);
+  const size = page.getByLabel('Notes per page');
+  await size.click();
+  await page.keyboard.press('Escape');
+  await expect(size).toHaveCSS('outline-style', 'none');
+  await size.selectOption('30');
+  await expect(page.locator('#notebook-heading')).toBeFocused();
+  await expect(page.locator('#notebook-heading')).toHaveCSS('outline-style', 'none');
+  await page.keyboard.press('Tab');
+  await size.focus();
+  await expect(size).toHaveCSS('outline-style', 'solid');
+  await page.keyboard.press('Escape');
+  await expect(size).not.toBeFocused();
+  await expect(page.locator('[data-tab-focus]')).toHaveCount(0);
+});
+
+test('Tab shows focus when a dialog traps focus on the same mouse-focused button', async ({
+  page,
+}) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Keyboard shortcuts', exact: true }).click();
+  const dialog = page.locator('#keymap-dialog');
+  const close = dialog.getByRole('button', { name: 'Close keyboard shortcuts', exact: true });
+  await expect(close).toBeFocused();
+  await expect(close).toHaveCSS('outline-style', 'none');
+  await page.keyboard.press('Tab');
+  await expect(close).toBeFocused();
+  await expect(close).toHaveCSS('outline-style', 'solid');
+  await dialog.locator('#keymap-title').click();
+  await page.keyboard.press('ArrowDown');
+  await expect(close).toBeFocused();
+  await expect(close).toHaveCSS('outline-style', 'none');
+  await expect(dialog).toHaveCSS('outline-style', 'none');
+  await page.keyboard.press('Shift+Tab');
+  await expect(close).toHaveCSS('outline-style', 'solid');
+});
+
+test('Elm assigns unambiguous hint labels across the three-letter boundary', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('.workspace')).toBeVisible();
+  await page.evaluate(() => {
+    const links = document.createElement('nav');
+    links.setAttribute('aria-label', 'Hint fixture');
+    Object.assign(links.style, {
+      position: 'fixed',
+      inset: '80px 20px auto 270px',
+      zIndex: '10',
+      display: 'grid',
+      gridTemplateColumns: 'repeat(10, 1fr)',
+    });
+    for (let index = 0; index < 100; index++) {
+      const link = document.createElement('a');
+      link.href = `/?target=${index}`;
+      link.textContent = `Target ${index}`;
+      link.style.padding = '4px';
+      links.append(link);
+    }
+    document.body.append(links);
+  });
+  await page.keyboard.press('f');
+  const target = page.locator('.link-hint[title="Target 99"]');
+  await expect(target).toBeVisible();
+  const labels = await page
+    .locator('.link-hint')
+    .evaluateAll((nodes) => nodes.map((node) => node.dataset.hint));
+  expect(labels.length).toBeGreaterThan(81);
+  expect(new Set(labels).size).toBe(labels.length);
+  expect(labels.every((label) => label.length === 3)).toBe(true);
+  const key = await target.getAttribute('data-hint');
+  await page.keyboard.type(key.slice(0, 2));
+  await expect(page).toHaveURL('/');
+  await page.keyboard.type(key.slice(2));
+  await expect(page).toHaveURL('/?target=99');
+});
+
 test('note highlighting follows only its own row and clears when the pointer leaves', async ({
   page,
 }) => {

@@ -1,11 +1,13 @@
 """Exercise authoring boundaries in a disposable vault, using the real compiler."""
 
-import shutil
+import json
+import re
 import subprocess
 import tempfile
 from pathlib import Path
+from typing import cast
 
-from site_data import read_index
+from site_data import JsonValue, read_index
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -27,7 +29,6 @@ BINARY = compiler_binary()
 
 with tempfile.TemporaryDirectory(prefix="asai-compiler-") as temporary:
     vault = Path(temporary)
-    shutil.copytree(ROOT / "templates", vault / "templates")
     (vault / "content/posts/编程/nested").mkdir(parents=True)
     (vault / "content/attachments").mkdir(parents=True)
     (vault / "content/attachments/diagram.svg").write_text(
@@ -63,6 +64,8 @@ unchanged code
 ```
 plain code
 ```
+
+## `</script>` & heading
 """
     note.write_text(source)
 
@@ -88,11 +91,24 @@ plain code
     assert 'href="/attachments/diagram.svg"' in html
     assert 'data-category="编程"' in html
     assert html.count('class="code-block"') == 3
+    assert html.count('class="code-copy"') == 3
+    assert "code-copy" not in (vault / "_site/feed.xml").read_text()
     for language in ["python", "frobnicate", "text"]:
         assert f'class="code-language">{language}</span>' in html
     assert "&lt;tag&gt;" in html
     assert "frobnicate" not in post["searchText"]
     assert "plain code" in post["searchText"]
+    outline = re.search(
+        r'<script id="article-headings" type="application/json">(.*?)</script>', html
+    )
+    assert outline is not None
+    assert "\\u003c/script>" in outline.group(1)
+    headings = cast(JsonValue, json.loads(outline.group(1)))
+    assert isinstance(headings, list) and len(headings) == 2
+    assert isinstance(headings[0], dict) and headings[0]["id"] == "hello-world"
+    assert (
+        isinstance(headings[1], dict) and headings[1]["label"] == "</script> & heading"
+    )
 
     (vault / "content/posts/moved").mkdir()
     moved = vault / "content/posts/moved/fixture.md"

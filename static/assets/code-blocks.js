@@ -1,20 +1,7 @@
 (() => {
   const resetTimers = new WeakMap();
 
-  const enhance = (root) => {
-    for (const block of root.querySelectorAll('.code-block')) {
-      const toolbar = block.querySelector('.code-toolbar');
-      if (!toolbar || toolbar.querySelector('.code-copy') || !block.querySelector('pre code'))
-        continue;
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.className = 'code-copy';
-      button.textContent = 'Copy';
-      button.setAttribute('aria-label', 'Copy code');
-      button.setAttribute('aria-live', 'polite');
-      toolbar.append(button);
-    }
-  };
+  document.documentElement.classList.add('can-copy-code');
 
   document.addEventListener('click', async (event) => {
     const button = event.target.closest?.('.code-copy');
@@ -30,7 +17,7 @@
       button.dataset.state = 'copied';
       button.textContent = 'Copied';
       button.setAttribute('aria-label', 'Code copied');
-    } catch (_) {
+    } catch {
       button.dataset.state = 'failed';
       button.textContent = 'Copy failed';
       button.setAttribute('aria-label', 'Copy failed. Select the code and copy it manually.');
@@ -45,7 +32,4 @@
       }, 2500),
     );
   });
-
-  window.AsaiCodeBlocks = { enhance };
-  enhance(document);
 })();

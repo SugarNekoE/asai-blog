@@ -98,7 +98,7 @@ test('immersive toggling closes existing panels and hints, while explicit search
   await page.keyboard.press('?');
   const keymap = page.getByRole('dialog', { name: 'Keyboard shortcuts', exact: true });
   await expect(keymap).toBeVisible();
-  await expect(keymap.getByText('Toggle Immersive Mode', { exact: true })).toBeVisible();
+  await expect(keymap.getByText('Toggle Immersive Mode on a note', { exact: true })).toBeVisible();
   await page.keyboard.press('Shift+I');
   await expect(keymap).not.toBeVisible();
   await expect(page.locator('.workspace')).not.toHaveClass(/is-immersive/);
@@ -110,7 +110,7 @@ test('immersive toggling closes existing panels and hints, while explicit search
   await expect(page.locator('.workspace')).toHaveClass(/is-immersive/);
 });
 
-test('immersive mode preserves outline and index preferences and ignores typed uppercase I', async ({
+test('immersive mode preserves the note outline and stays disabled on filtered indexes', async ({
   page,
 }) => {
   await page.goto('/posts/plain-text-to-a-small-web/');
@@ -128,13 +128,14 @@ test('immersive mode preserves outline and index preferences and ignores typed u
   await inline.press('Shift+I');
   await expect(inline).toHaveValue('I');
   await expect(page.locator('.workspace')).not.toHaveClass(/is-immersive/);
+  await expect(page).toHaveURL(/q=I/);
   const url = page.url();
   await inline.evaluate((node) => node.blur());
   await page.keyboard.press('Shift+I');
-  await expect(page.locator('.workspace')).toHaveClass(/is-immersive/);
+  await expect(page.locator('.workspace')).not.toHaveClass(/is-immersive/);
+  await expect(page.locator('.immersive-header')).toHaveCount(0);
+  await expect(page.locator('.topbar')).toBeVisible();
   await page.setViewportSize({ width: 390, height: 844 });
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-  await page.screenshot({ path: 'test-results/immersive-mobile.png' });
   await page.keyboard.press('Shift+I');
   await expect(page.locator('.workspace')).not.toHaveClass(/is-immersive/);
   await expect(inline).toHaveValue('I');
@@ -142,4 +143,31 @@ test('immersive mode preserves outline and index preferences and ignores typed u
   await expect(page.locator('.selected-tag')).toHaveCount(1);
   await expect(page.getByLabel('Notes per page')).toHaveValue('30');
   await expect(page).toHaveURL(url);
+});
+
+test('index and error pages ignore immersive shortcuts while panels and hints are open', async ({
+  page,
+}) => {
+  for (const path of ['/', '/?category=web', '/404.html']) {
+    await page.goto(path);
+    await expect(page.locator('.workspace')).toBeVisible();
+    await page.keyboard.press('Shift+I');
+    await expect(page.locator('.workspace')).not.toHaveClass(/is-immersive/);
+    await page.keyboard.press('?');
+    const keymap = page.locator('#keymap-dialog');
+    await expect(keymap).toBeVisible();
+    await page.keyboard.press('Shift+I');
+    await expect(keymap).toBeVisible();
+    await expect(page.locator('.workspace')).not.toHaveClass(/is-immersive/);
+    await page.keyboard.press('Escape');
+    await expect(keymap).not.toBeVisible();
+    await page.keyboard.press('f');
+    await expect(page.locator('.link-hints')).toBeVisible();
+    await page.keyboard.press('Shift+I');
+    await expect(page.locator('.link-hints')).toBeVisible();
+    await expect(page.locator('.workspace')).not.toHaveClass(/is-immersive/);
+    await expect(page.locator('.immersive-header')).toHaveCount(0);
+    await page.keyboard.press('Escape');
+    await expect(page).toHaveURL(path);
+  }
 });

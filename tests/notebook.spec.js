@@ -1,5 +1,84 @@
 const { test, expect } = require('@playwright/test');
 
+test('index and notes share content width and alignment with or without an outline', async ({
+  page,
+}) => {
+  for (const width of [1920, 1440, 1280, 1100, 768, 390]) {
+    await page.setViewportSize({ width, height: 1000 });
+    await page.goto('/');
+    await expect(page.locator('.workspace')).toBeVisible();
+    const index = await page.locator('.page-content').boundingBox();
+    const intro = await page.locator('.intro .eyebrow').boundingBox();
+    await page.goto('/posts/plain-text-to-a-small-web/');
+    await expect(page.locator('.page-outline')).toBeVisible();
+    const article = await page.locator('.prose').boundingBox();
+    const back = await page.locator('.prose > .back').boundingBox();
+    expect(Math.abs(index.x - article.x)).toBeLessThan(1);
+    expect(Math.abs(index.width - article.width)).toBeLessThan(1);
+    expect(Math.abs(intro.x - back.x)).toBeLessThan(1);
+    if (width >= 1200) expect(Math.abs(intro.y - back.y)).toBeLessThan(1);
+    await page.keyboard.press('o');
+    await expect(page.locator('.page-outline')).toHaveCount(0);
+    const withoutOutline = await page.locator('.prose').boundingBox();
+    const plainBack = await page.locator('.prose > .back').boundingBox();
+    expect(Math.abs(index.x - withoutOutline.x)).toBeLessThan(1);
+    expect(Math.abs(index.width - withoutOutline.width)).toBeLessThan(1);
+    expect(Math.abs(intro.y - plainBack.y)).toBeLessThan(1);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+      true,
+    );
+  }
+});
+
+test('tag picker dismisses outside clicks and taps while preserving checkbox changes', async ({
+  browser,
+  baseURL,
+}) => {
+  for (const touch of [false, true]) {
+    const context = await browser.newContext({
+      baseURL,
+      viewport: { width: touch ? 390 : 1440, height: 900 },
+      hasTouch: touch,
+      isMobile: touch,
+    });
+    try {
+      const page = await context.newPage();
+      const activate = (locator) => (touch ? locator.tap() : locator.click());
+      await page.goto('/?category=web');
+      await expect(page.locator('.workspace')).toBeVisible();
+      const picker = page.locator('.tag-picker');
+      const toggle = picker.locator('summary');
+      await activate(toggle);
+      await expect(picker).toHaveJSProperty('open', true);
+      for (const tag of ['haskell', 'elm']) {
+        const checkbox = picker.getByRole('checkbox', { name: `Select tag ${tag}`, exact: true });
+        await activate(checkbox);
+        await expect(checkbox).toBeChecked();
+        await expect(picker).toHaveJSProperty('open', true);
+      }
+      await activate(picker.locator('.filter-mode'));
+      await expect(picker).toHaveJSProperty('open', true);
+      await activate(page.locator('.intro h1'));
+      await expect(picker).toHaveJSProperty('open', false);
+      await expect(page.locator('.selected-tag')).toHaveCount(2);
+      await expect(page.locator('.post-row')).toHaveCount(1);
+      expect(new URL(page.url()).searchParams.get('category')).toBe('web');
+      expect(new URL(page.url()).searchParams.getAll('tag')).toEqual(['elm', 'haskell']);
+      await activate(toggle);
+      await expect(picker).toHaveJSProperty('open', true);
+      await activate(page.getByRole('button', { name: 'Newest first', exact: true }));
+      await expect(picker).toHaveJSProperty('open', false);
+      await expect(page.getByRole('button', { name: 'Oldest first', exact: true })).toBeVisible();
+      await activate(toggle);
+      await expect(picker).toHaveJSProperty('open', true);
+      await activate(toggle);
+      await expect(picker).toHaveJSProperty('open', false);
+    } finally {
+      await context.close();
+    }
+  }
+});
+
 async function addTag(page, tag) {
   const picker = page.locator('.tag-picker > summary');
   await picker.click();
