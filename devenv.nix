@@ -14,13 +14,9 @@
 
   packages = with pkgs; [
     just
-    ormolu
-    nixfmt
-    ruff
     poppler-utils
     python3Packages.fonttools
     python3Packages.brotli
-    elmPackages.elm-format
     yaml-language-server
     package-version-server
     vscode-css-languageserver
@@ -52,15 +48,27 @@
     python = {
       enable = true;
       version = "3.14";
+      lsp.enable = true;
     };
   };
 
   git-hooks = {
     enable = true;
     hooks = {
-      convco = {
+      convco.enable = true;
+      ruff.enable = true;
+      shfmt = {
         enable = true;
+        settings = {
+          indent = 2;
+          case-indent = true;
+        };
       };
+      nixfmt.enable = true;
+      ormolu.enable = true;
+      pyright.enable = true;
+      shellcheck.enable = true;
+      elm-format.enable = true;
     };
   };
 }
