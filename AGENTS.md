@@ -14,10 +14,23 @@ and basic commands.
 - `content/posts/<category>/`: Markdown posts and drafts.
 - `content/attachments/`: public assets copied to the site.
 - `content/templates/` and `content/.obsidian/`: authoring templates and settings.
-- `templates/`: static HTML templates and the no-JavaScript fallback.
-- `frontend/src/Main.elm`: UI state, views, navigation, and filters.
-- `static/assets/`: shared CSS and the JavaScript boundary for browser APIs and
-  Elm ports. `static/assets/elm.js` is generated.
+- `src/Site/`: typed Haskell page views, Markdown transforms, and article metadata.
+- `frontend/src/Main.elm`: program state, updates, and view composition.
+- `frontend/src/BrowserPorts.elm`: typed browser interface; `Keyboard.elm` and
+  `BrowserClock.elm` own shortcut policies and local-time formatting/scheduling.
+- `frontend/src/Post.elm`: note metadata types and JSON index decoding.
+- `frontend/src/Notebook.elm` and `frontend/src/Notebook/`: index composition,
+  filtering, selection, pagination, tags, and note cards.
+- `frontend/src/Layout.elm`: navigation, headers, footer, and article outline.
+- `frontend/src/SearchLauncher.elm`, `frontend/src/Keymap.elm`: search and keyboard
+  shortcut dialogs.
+- `frontend/src/IndexQuery.elm`, `frontend/src/LinkHints.elm`: index URL state and
+  letter-hint assignment. JavaScript measures DOM targets and applies browser
+  history changes.
+- `frontend/src/Styles/`: scoped elm-css styles, responsive rules, and shared
+  typography/token helpers.
+- `static/assets/`: startup, fallback/article, print, palette, and font CSS.
+  `browser/` contains small native DOM/asset adapters; `elm.js` is generated.
 - `justfile` and `scripts/`: build, formatting, and verification commands.
 - `devenv.nix`, `devenv.yaml`, and `devenv.lock`: the development environment.
 - `wrangler.jsonc` and `static/_headers`: Pages configuration and HTTP headers.
@@ -30,10 +43,17 @@ and basic commands.
   or a separate Nix configuration directory.
 - Keep source and configuration readable and expanded. Use `just format` or the
   relevant configured formatter; never hand-minify source files.
+  Preserve `elm-format`'s standard spacing between top-level declarations.
+  `just lint` checks formatting, strict Python, JavaScript, and shell scripts;
+  `just check-format` checks formatting without modifying files.
+- Python scripts and local stubs must pass strict Pyright and Ruff through
+  `just check-python`. Annotate functions and validate external data. Keep the
+  FontTools interfaces used by the font generator in `typings/fontTools/`.
 - Comment only non-obvious rationale or constraints; do not narrate the code.
 - Keep palette values and color mappings in `static/assets/colors.css`, using
-  named Monokai Pro color tokens. Layout CSS consumes these tokens; tag mappings
-  use exact `data-tag` values and share colors across badges, chips, and pickers.
+  named Monokai Pro color tokens. elm-css and platform CSS consume these tokens;
+  tag mappings use exact `data-tag` values and share colors across badges, chips,
+  and pickers.
 - Edit source rather than `_site/`, `_cache/`, `.build/`, `dist-newstyle/`,
   `frontend/elm-stuff/`, or `static/assets/elm.js`. Regenerate build outputs and
   leave them untracked. Do not reformat lockfiles; retain legitimate dependency
@@ -41,6 +61,15 @@ and basic commands.
 - Keep Markdown conversion in Hakyll/Pandoc and interactive state in Elm. Use
   JavaScript for browser integration through the existing ports. Keep the JSON
   producer, Elm decoder, startup flags, and tests consistent when contracts change.
+- Keep feature views independent of `Main`: pass the state fields they need and
+  typed action callbacks instead of importing the application model or messages.
+- Use `Html.Styled` and focused `Styles` modules for interactive components.
+  Prefer typed elm-css properties; use `Css.property` for custom properties and
+  unsupported CSS features. Use `Styles.Responsive.rules` to preserve query order.
+  Keep plain CSS only for content rendered before/outside Elm, fonts, palette,
+  and print output. Keep native browser operations in small JavaScript adapters.
+- Generate code toolbar markup in Hakyll. Keep clipboard access in JavaScript,
+  hide copy controls without JavaScript, and omit toolbars from the Atom feed.
 - Preserve standalone article URLs and readable static HTML when JavaScript or
   the JSON index is unavailable. Only trusted, repository-authored HTML belongs
   in the `blog-content` boundary.
@@ -64,6 +93,8 @@ Preserve these choices unless the user requests a change:
 - The left sidebar lists categories. Clickable note tags add to the index's
   multi-tag filter; all selected tags must match alongside category and search.
   Selected tags have removable chips and persist as repeated `tag` URL parameters.
+  The tag picker stays open for clicks inside it and closes on clicks or taps
+  outside it, without changing selected tags or blocking the clicked control.
 - Categories are navigation context, not filters. “Clear filters” removes only
   selected tags; it preserves the current category and search text.
 - Paginate the index after applying its category, tags, search, and sort order.
@@ -75,6 +106,9 @@ Preserve these choices unless the user requests a change:
   Escape/backdrop dismissal, and the index's independent filters.
 - `?` opens keyboard shortcuts and `/` opens search outside text fields. Panels
   share modal behavior and must not remain open on top of each other.
+  Keep focus on controls, never dialog or scroll containers. Search arrows must
+  work after pointer interaction and return focus to the search input; scrolling
+  beneath a stationary pointer must not change the keyboard-selected result.
 - With panels closed, `t` toggles theme, `o` toggles the reading outline, Enter
   opens the selected index note, and `f` shows letter hints for visible links
   and category navigation buttons.
@@ -82,16 +116,23 @@ Preserve these choices unless the user requests a change:
   over page shortcuts; Escape, scrolling, or resizing cancels hints.
   With panels and hints closed, Escape clears the focused control and its outline
   without changing input values or filters. Tab resumes normal keyboard focus.
+  Track Tab navigation separately from pointer focus: mouse-focused controls must
+  not acquire focus outlines when page shortcuts such as `f` are pressed. Retain
+  native focus indicators for the static fallback when JavaScript is unavailable.
   Highlight note titles only while their own row is hovered or their title has
   keyboard focus; the remembered Enter target must not keep a row highlighted.
 - “On this page” belongs in a transparent right-hand article panel, with a
   responsive layout on narrow screens, rather than in the left sidebar.
-- `Shift+I` toggles Immersive Mode outside text fields: widen content and hide
+- Index and note pages share the same primary content width, gutters, and start
+  position. Reserve the desktop outline column even when no outline is shown;
+  hiding it must not shift the content. Immersive Mode removes this constraint.
+- `Shift+I` toggles Immersive Mode only on note pages, outside text fields: widen content and hide
   sidebar, outline, normal header, and footer. Keep a minimal borderless header
   with the linked λ / Asai Blog brand, mode label, and clickable Shift+I exit hint.
   Suppress the main container's focus outline; retain focus indicators on controls.
   Close open panels and hints on entry;
-  preserve outline preference and index state for restoration on exit.
+  preserve outline preference for restoration on exit. Index, category, and error
+  pages must ignore the shortcut, including while panels or link hints are open.
 - Keep print layout in `static/assets/print.css`: content only, A4 margins,
   dark text on white, and no site controls or overlays. Preserve complete code,
   tables, and images across pages, including in fallback and immersive states.
