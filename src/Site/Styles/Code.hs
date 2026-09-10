@@ -55,7 +55,7 @@ styles = do
     borderRadius (px 4) (px 4) (px 4) (px 4)
     opacity 0
     "pointer-events" -: "none"
-  ".can-copy-code .code-copy" ? do
+  "code-copy[data-ready] .code-copy" ? do
     display inlineBlock
   ".code-block:hover .code-copy, .code-block:focus-within .code-copy, .code-copy[data-state]" ? do
     opacity 1

@@ -1,4 +1,5 @@
 import './browser/content.js';
+import { registerClipboard } from './browser/clipboard.js?v=elm-controls-1';
 import {
   pageLoaded,
   firstPaintOpportunity,
@@ -78,6 +79,7 @@ async function mountInterface(bootstrap, posts) {
 }
 
 try {
+  registerClipboard(window.Elm?.CodeBlock);
   if (!window.Elm?.Startup || !window.Elm.Main || !content || loading?.expired) {
     recover();
   } else {

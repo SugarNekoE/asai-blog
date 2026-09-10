@@ -22,7 +22,7 @@ check-python:
 
 # Recompile Elm after editing frontend/src.
 ui:
-    cd frontend && elm make src/Main.elm src/Startup.elm --optimize --output=../static/assets/elm.js
+    cd frontend && elm make src/Main.elm src/Startup.elm src/CodeBlock.elm --optimize --output=../static/assets/elm.js
 
 # Format source and configuration files, excluding generated output.
 format:

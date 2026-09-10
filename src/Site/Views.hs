@@ -6,6 +6,7 @@ import Control.Monad (forM_)
 import Text.Blaze.Html5 ((!))
 import qualified Text.Blaze.Html5 as H
 import qualified Text.Blaze.Html5.Attributes as A
+import Text.Blaze.Internal (customParent)
 
 data PostInfo = PostInfo
   { postTitle :: String,
@@ -16,7 +17,7 @@ data PostInfo = PostInfo
   }
 
 copyButton :: H.Html
-copyButton = H.button ! A.type_ "button" ! A.class_ "code-copy" ! H.customAttribute "aria-label" "Copy code" ! H.customAttribute "aria-live" "polite" $ "Copy"
+copyButton = customParent "code-copy" $ H.button ! A.type_ "button" ! A.class_ "code-copy" ! H.customAttribute "aria-label" "Copy code" ! H.customAttribute "aria-live" "polite" $ "Copy"
 
 article :: PostInfo -> String -> H.Html
 article info body =

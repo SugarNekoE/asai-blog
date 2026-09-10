@@ -2,6 +2,81 @@ const { test, expect } = require('@playwright/test');
 
 const article = '/posts/plain-text-to-a-small-web/';
 
+test('Elm copy controls isolate pending requests and ignore stale reset timers', async ({
+  page,
+}) => {
+  await page.clock.install();
+  await page.addInitScript(() => {
+    window.copyRequests = [];
+    Object.defineProperty(navigator, 'clipboard', {
+      value: {
+        writeText: (text) =>
+          new Promise((resolve) => {
+            window.copyRequests.push({ text, resolve, active: navigator.userActivation.isActive });
+          }),
+      },
+    });
+  });
+  await page.goto(article);
+  await expect(page.locator('.workspace')).toBeVisible();
+  const blocks = page.locator('.code-block');
+  const first = blocks.nth(0).locator('.code-copy');
+  const second = blocks.nth(1).locator('.code-copy');
+  await blocks.nth(0).hover();
+  await first.click();
+  await expect(first).toHaveText('Copying…');
+  await first.click();
+  expect(await page.evaluate(() => window.copyRequests.length)).toBe(1);
+  await blocks.nth(1).hover();
+  await second.click();
+  await expect(second).toHaveText('Copying…');
+  expect(await page.evaluate(() => window.copyRequests.map((request) => request.active))).toEqual([
+    true,
+    true,
+  ]);
+  expect(await page.evaluate(() => window.copyRequests.map((request) => request.text))).toEqual(
+    await blocks.locator('pre code').allTextContents(),
+  );
+  await page.evaluate(() => window.copyRequests[0].resolve());
+  await expect(first).toHaveText('Copied');
+  await expect(second).toHaveText('Copying…');
+  await page.clock.fastForward(2000);
+  await first.click();
+  await expect(first).toHaveText('Copying…');
+  await page.clock.fastForward(600);
+  await expect(first).toHaveText('Copying…');
+  await page.evaluate(() => {
+    window.copyRequests[1].resolve();
+    window.copyRequests[2].resolve();
+  });
+  await expect(blocks.locator('.code-copy')).toHaveText(['Copied', 'Copied']);
+  await page.clock.runFor(2600);
+  await expect(blocks.locator('.code-copy')).toHaveText(['Copy', 'Copy']);
+});
+
+test('Elm copy controls work on the static article when index loading fails', async ({ page }) => {
+  await page.route('**/api/posts.json', (route) => route.abort());
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, 'clipboard', {
+      value: {
+        writeText: async (text) => {
+          window.copiedCode = text;
+        },
+      },
+    });
+  });
+  await page.goto(article);
+  await expect(page.locator('#static-content')).toBeVisible();
+  await expect(page.locator('.workspace')).toHaveCount(0);
+  const block = page.locator('.code-block').first();
+  await block.hover();
+  await block.getByRole('button', { name: 'Copy code', exact: true }).click();
+  await expect(block.locator('.code-copy')).toHaveText('Copied');
+  expect(await page.evaluate(() => window.copiedCode)).toBe(
+    await block.locator('pre code').textContent(),
+  );
+});
+
 test('code toolbars label languages and copy only the selected highlighted code', async ({
   page,
   context,
