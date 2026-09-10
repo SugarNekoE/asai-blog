@@ -22,6 +22,7 @@ import Post exposing (Heading, Post)
 import SearchLauncher
 import Set
 import Task
+import Url
 
 
 type alias Flags =
@@ -33,6 +34,7 @@ type alias Flags =
     , theme : String
     , search : String
     , headings : List Heading
+    , fragment : String
     }
 
 
@@ -62,6 +64,7 @@ type alias Model =
     , hintsActive : Bool
     , hints : List Hint
     , hintPrefix : String
+    , initialAnchor : String
     }
 
 
@@ -70,6 +73,7 @@ type Msg
     | ClockChanged Clock
     | ClockTick Clock
     | RefreshClock
+    | VisibilityChanged Browser.Events.Visibility
     | BrowserReady
     | KeyboardPressed String
     | TimingsChanged PageTimings
@@ -112,6 +116,7 @@ main =
                     , keyboardPressed KeyboardPressed
                     , linkHintsReady HintsReady
                     , linkTargetsCollected HintsCollected
+                    , Browser.Events.onVisibilityChange VisibilityChanged
                     , if model.hintsActive then
                         Sub.batch
                             [ linkTargetsChanged (always (HintKey "Escape"))
@@ -165,6 +170,7 @@ init flags =
       , hintsActive = False
       , hints = []
       , hintPrefix = ""
+      , initialAnchor = Url.percentDecode (String.dropLeft 1 flags.fragment) |> Maybe.withDefault ""
       }
     , Clock.nextTick ClockTick
     )
@@ -202,11 +208,24 @@ updateModel : Msg -> Model -> ( Model, Cmd Msg )
 updateModel msg model =
     case msg of
         BrowserReady ->
-            if List.any (Tuple.first >> (==) "search") model.extraQuery then
-                updateModel OpenLauncher model
+            let
+                ( ready, command ) =
+                    if List.any (Tuple.first >> (==) "search") model.extraQuery then
+                        updateModel OpenLauncher model
 
-            else
-                ( model, Cmd.none )
+                    else
+                        ( model, Cmd.none )
+            in
+            ( { ready | initialAnchor = "" }
+            , Cmd.batch
+                [ command
+                , if String.isEmpty model.initialAnchor then
+                    Cmd.none
+
+                  else
+                    positionPage { id = model.initialAnchor, focusId = "", block = "start" }
+                ]
+            )
 
         KeyboardPressed key ->
             case Keyboard.action model key of
@@ -345,6 +364,14 @@ updateModel msg model =
 
         RefreshClock ->
             ( model, Task.perform ClockChanged Clock.read )
+
+        VisibilityChanged visibility ->
+            case visibility of
+                Browser.Events.Visible ->
+                    updateModel RefreshClock model
+
+                Browser.Events.Hidden ->
+                    updateModel (HintKey "Escape") model
 
         Search query ->
             updateFilters { model | query = query }
