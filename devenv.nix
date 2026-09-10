@@ -2,6 +2,7 @@
 
 {
   env = pkgs.lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
+    CHROMIUM_PATH = pkgs.lib.getExe pkgs.chromium;
     MINIFLARE_WORKERD_PATH = toString (
       pkgs.writeShellScript "asai-workerd" ''
         exec ${pkgs.stdenv.cc.bintools.dynamicLinker} \
@@ -49,6 +50,9 @@
       package = pkgs.python314.withPackages (p: [
         p.fonttools
         p.brotli
+        p.pytest
+        p.pytest-playwright
+        p.pytest-xdist
       ]);
       lsp.enable = true;
     };
