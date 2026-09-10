@@ -21,6 +21,8 @@ and basic commands.
 - `frontend/src/Main.elm`: program state, updates, and view composition.
 - `frontend/src/Startup.elm` and `frontend/src/Startup/`: elm/http index loading,
   validation, font requests, loading stages, and readiness/timeout decisions.
+- `frontend/src/CodeBlock.elm`: independent copy-button views, clipboard result
+  state, and reset timers, including on the static fallback when the index fails.
 - `frontend/src/Panels.elm`: exclusive panel state and focus/scroll destinations.
 - `frontend/src/BrowserPorts.elm`: typed browser interface; `Keyboard.elm` and
   `BrowserClock.elm` own shortcut policies and local-time formatting/scheduling.
@@ -30,14 +32,16 @@ and basic commands.
 - `frontend/src/Layout.elm`: navigation, headers, footer, and article outline.
 - `frontend/src/SearchLauncher.elm`, `frontend/src/Keymap.elm`: search and keyboard
   shortcut dialogs.
-- `frontend/src/IndexQuery.elm`, `frontend/src/LinkHints.elm`: index URL state and
-  letter-hint assignment. JavaScript measures DOM targets and applies browser
-  history changes.
+- `frontend/src/IndexQuery.elm`, `frontend/src/LinkHints.elm`, and
+  `frontend/src/LinkHints/`: URL state, hint eligibility, label selection,
+  viewport geometry, and letter assignment. Native adapters measure DOM targets,
+  perform hit tests, activate elements, and apply browser history changes.
 - `frontend/src/Styles/`: scoped elm-css styles, responsive rules, and shared
   typography/token helpers.
-- `static/assets/`: palette/font CSS and the early startup fallback guard.
-  `browser/` contains native DOM/asset adapters; `elm.js` is generated from both
-  the startup worker and main interface in a single bundle.
+- `static/assets/`: palette/font CSS and the early loading/theme scripts.
+  `boot.js` is only the entry point; `browser/runtime.js` connects the Elm programs
+  to focused page, clipboard, target-measurement, and other native adapters.
+  `elm.js` bundles the startup worker, main interface, and copy-button components.
 - `justfile` and `scripts/`: build, formatting, and verification commands.
 - `devenv.nix`, `devenv.yaml`, and `devenv.lock`: the development environment.
 - `wrangler.jsonc` and `static/_headers`: Pages configuration and HTTP headers.
@@ -78,8 +82,11 @@ and basic commands.
   these stylesheets directly; do not recreate their sources in `static/assets/`.
   Keep authored CSS for fonts and palette configuration. Keep native browser
   operations in small JavaScript adapters.
-- Generate code toolbar markup in Hakyll. Keep clipboard access in JavaScript,
-  hide copy controls without JavaScript, and omit toolbars from the Atom feed.
+- Generate code toolbar markup and `code-copy` hosts in Hakyll. Elm renders the
+  copy controls and owns their status/reset timers. Keep clipboard access in the
+  native adapter and perform writes directly when the Elm request arrives, before
+  awaiting anything. Hide controls until their Elm component is initialized and
+  omit toolbars from the Atom feed. Ignore reset timers from older copy attempts.
 - Preserve standalone article URLs and readable static HTML when JavaScript or
   the JSON index is unavailable. Only trusted, repository-authored HTML belongs
   in the `blog-content` boundary.
