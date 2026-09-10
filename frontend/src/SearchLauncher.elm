@@ -4,6 +4,7 @@ import Html.Styled as Html exposing (..)
 import Html.Styled.Attributes exposing (..)
 import Html.Styled.Events as Events exposing (onClick, onFocus, onInput, preventDefaultOn)
 import Json.Decode as D
+import Panels
 import Post exposing (Post)
 import Search as SearchQuery
 import Styles.Dialog as DialogStyles
@@ -13,7 +14,7 @@ type alias State a =
     { a
         | posts : List Post
         , failed : Bool
-        , launcherOpen : Bool
+        , panel : Panels.Panel
         , launcherQuery : String
         , launcherSelection : Int
     }
@@ -83,6 +84,7 @@ view actions model =
     in
     node "dialog"
         [ id "search-dialog"
+        , attribute "data-panel-focus" "launcher-search"
         , class "search-dialog"
         , css [ DialogStyles.searchDialog ]
         , attribute "aria-labelledby" "search-dialog-title"
@@ -122,7 +124,7 @@ view actions model =
                 , attribute "aria-controls" "launcher-results"
                 , attribute "aria-describedby" "launcher-help"
                 , attribute "aria-expanded"
-                    (if model.launcherOpen then
+                    (if model.panel == Panels.Search then
                         "true"
 
                      else

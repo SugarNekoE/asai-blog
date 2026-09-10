@@ -1,8 +1,10 @@
-module Notebook.Filters exposing (view)
+module Notebook.Filters exposing (outsideClick, view)
 
 import Html.Styled exposing (..)
 import Html.Styled.Attributes exposing (..)
-import Html.Styled.Events exposing (onCheck, onClick)
+import Html.Styled.Events exposing (on, onCheck, onClick)
+import Json.Decode as D
+import Json.Encode as E
 import Notebook.Types exposing (Actions, State)
 import Set
 import Styles.Filters as FiltersStyles
@@ -18,7 +20,13 @@ view actions model =
                 |> Set.toList
     in
     div [ class "index-filters", css [ FiltersStyles.indexFilters ] ]
-        [ details [ class "tag-picker", css [ FiltersStyles.tagPicker ] ]
+        [ details
+            [ id "tag-picker"
+            , class "tag-picker"
+            , css [ FiltersStyles.tagPicker ]
+            , property "open" (E.bool model.tagPickerOpen)
+            , on "toggle" (D.map actions.setTagPicker (D.at [ "target", "open" ] D.bool))
+            ]
             [ summary []
                 [ text "Tags"
                 , span [ class "tag-selection-count", css [ FiltersStyles.tagSelectionCount ] ]
@@ -75,3 +83,32 @@ view actions model =
           else
             button [ class "clear-filters", css [ FiltersStyles.clearFilters ], onClick actions.clearTags ] [ text "Clear filters" ]
         ]
+
+
+outsideClick : msg -> D.Decoder msg
+outsideClick close =
+    D.field "target" insidePicker
+        |> D.andThen
+            (\inside ->
+                if inside then
+                    D.fail "Keep the tag picker open"
+
+                else
+                    D.succeed close
+            )
+
+
+insidePicker : D.Decoder Bool
+insidePicker =
+    D.maybe (D.field "id" D.string)
+        |> D.andThen
+            (\identifier ->
+                if identifier == Just "tag-picker" then
+                    D.succeed True
+
+                else
+                    D.oneOf
+                        [ D.field "parentNode" (D.lazy (\_ -> insidePicker))
+                        , D.succeed False
+                        ]
+            )

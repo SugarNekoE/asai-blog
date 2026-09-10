@@ -1,5 +1,7 @@
 module Keyboard exposing (Action(..), Keys, action, context, keys)
 
+import Panels
+
 
 type Action
     = Theme
@@ -15,7 +17,7 @@ type Action
 
 
 type alias Context a =
-    { a | page : String, hintsActive : Bool, launcherOpen : Bool, keymapOpen : Bool }
+    { a | page : String, hintsActive : Bool, panel : Panels.Panel }
 
 
 type alias Keys =
@@ -25,9 +27,9 @@ type alias Keys =
     }
 
 
-context : Context a -> ( Bool, Bool, Bool )
+context : Context a -> ( Bool, Panels.Panel )
 context model =
-    ( model.hintsActive, model.launcherOpen, model.keymapOpen )
+    ( model.hintsActive, model.panel )
 
 
 shortcuts : List ( String, Action )
@@ -74,7 +76,7 @@ activeKeys model =
         , editing = hintKeys
         }
 
-    else if model.launcherOpen || model.keymapOpen then
+    else if model.panel /= Panels.Closed then
         { page = [ "/", "?", "Shift+I" ]
         , control = [ "/", "?", "Shift+I" ]
         , editing = []

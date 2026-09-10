@@ -1,32 +1,27 @@
-port module BrowserPorts exposing (browserReady, clearFocus, clearLinkHints, clockRefreshRequested, collectLinkHints, followLinkHint, hintKey, keyboardPressed, linkHintsReady, replaceQuery, scrollNotebook, scrollSearchResult, setImmersiveMode, setKeyboardKeys, setKeymapOpen, setSearchOpen, setTheme, timingsChanged)
+port module BrowserPorts exposing (browserReady, clearFocus, clearLinkHints, clockRefreshRequested, collectLinkHints, followLinkHint, hintKey, keyboardPressed, linkHintsReady, positionPage, replaceQuery, setKeyboardKeys, setPanel, setTheme, timingsChanged)
 
 import Keyboard
 import Layout exposing (PageTimings)
 import LinkHints exposing (Target)
+import Panels
 
 
 port setTheme : String -> Cmd msg
 
 
-port setSearchOpen : Bool -> Cmd msg
+port setPanel : Panels.Target -> Cmd msg
 
 
 port browserReady : (() -> msg) -> Sub msg
 
 
-port setKeymapOpen : Bool -> Cmd msg
-
-
 port keyboardPressed : (String -> msg) -> Sub msg
 
 
-port scrollSearchResult : Int -> Cmd msg
+port positionPage : Panels.Position -> Cmd msg
 
 
 port replaceQuery : String -> Cmd msg
-
-
-port scrollNotebook : () -> Cmd msg
 
 
 port clockRefreshRequested : (() -> msg) -> Sub msg
@@ -39,9 +34,6 @@ port setKeyboardKeys : Keyboard.Keys -> Cmd msg
 
 
 port clearFocus : () -> Cmd msg
-
-
-port setImmersiveMode : Bool -> Cmd msg
 
 
 port collectLinkHints : () -> Cmd msg

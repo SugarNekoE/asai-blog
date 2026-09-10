@@ -1,6 +1,6 @@
 import './browser/content.js';
 import { pageLoaded, firstPaintOpportunity, fontsReady } from './browser/assets.js';
-import { connectDialogs } from './browser/dialogs.js';
+import { connectDialogs } from './browser/dialogs.js?v=elm-startup-1';
 import { connectFocus } from './browser/focus.js';
 import { connectKeyboard } from './browser/keyboard.js';
 import { connectLinks } from './browser/links.js';

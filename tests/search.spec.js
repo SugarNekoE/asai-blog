@@ -1,5 +1,19 @@
 const { test, expect } = require('@playwright/test');
 
+test('opening search again resets its query and focuses the input', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('.workspace')).toBeVisible();
+  await page.keyboard.press('/');
+  const dialog = page.locator('#search-dialog');
+  const search = dialog.getByRole('combobox');
+  await search.fill('compiler');
+  await dialog.getByRole('button', { name: 'Close search', exact: true }).focus();
+  await page.keyboard.press('/');
+  await expect(search).toBeFocused();
+  await expect(search).toHaveValue('');
+  await expect(dialog.getByRole('option')).toHaveCount(4);
+});
+
 test('search navigation survives pointer selection and keeps focus off panel containers', async ({
   page,
 }) => {

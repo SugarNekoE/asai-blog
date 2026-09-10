@@ -12,6 +12,7 @@ view : msg -> Html msg
 view close =
     node "dialog"
         [ id "keymap-dialog"
+        , attribute "data-panel-focus" "keymap-close"
         , class "search-dialog keymap-dialog"
         , css [ DialogStyles.searchDialog, KeymapStyles.keymapDialog ]
         , attribute "aria-labelledby" "keymap-title"

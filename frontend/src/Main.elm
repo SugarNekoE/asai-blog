@@ -1,6 +1,7 @@
 module Main exposing (main)
 
 import Browser
+import Browser.Events
 import Browser.Navigation as Navigation
 import BrowserClock as Clock exposing (Clock)
 import BrowserPorts exposing (..)
@@ -14,7 +15,9 @@ import Keymap
 import Layout exposing (PageTimings)
 import LinkHints exposing (Hint, Target)
 import Notebook
+import Notebook.Filters as Filters
 import Notebook.Query as NotebookQuery
+import Panels
 import Post exposing (Heading, Post)
 import SearchLauncher
 import Set
@@ -50,8 +53,8 @@ type alias Model =
     , pageSize : Int
     , menu : Bool
     , failed : Bool
-    , launcherOpen : Bool
-    , keymapOpen : Bool
+    , panel : Panels.Panel
+    , tagPickerOpen : Bool
     , launcherQuery : String
     , launcherSelection : Int
     , outlineVisible : Bool
@@ -72,6 +75,7 @@ type Msg
     | KeyboardPressed String
     | TimingsChanged PageTimings
     | SetTag String Bool
+    | SetTagPicker Bool
     | NavigateCategory String
     | ToggleSort
     | ToggleTheme
@@ -100,16 +104,20 @@ main =
         , update = update
         , view = view >> Html.toUnstyled
         , subscriptions =
-            always
-                (Sub.batch
+            \model ->
+                Sub.batch
                     [ clockRefreshRequested (always RefreshClock)
                     , timingsChanged TimingsChanged
                     , browserReady (always BrowserReady)
                     , keyboardPressed KeyboardPressed
                     , linkHintsReady HintsReady
                     , hintKey HintKey
+                    , if model.tagPickerOpen then
+                        Browser.Events.onClick (Filters.outsideClick (SetTagPicker False))
+
+                      else
+                        Sub.none
                     ]
-                )
         }
 
 
@@ -143,8 +151,8 @@ init flags =
       , pageSize = queryState.pageSize
       , menu = False
       , failed = Result.toMaybe decoded == Nothing
-      , launcherOpen = False
-      , keymapOpen = False
+      , panel = Panels.Closed
+      , tagPickerOpen = False
       , launcherQuery = ""
       , launcherSelection = 0
       , outlineVisible = True
@@ -245,13 +253,13 @@ updateModel msg model =
                         ( { model
                             | immersive = not model.immersive
                             , menu = False
-                            , launcherOpen = False
-                            , keymapOpen = False
+                            , panel = Panels.Closed
+                            , tagPickerOpen = False
                             , hintsActive = False
                             , hints = []
                             , hintPrefix = ""
                           }
-                        , Cmd.batch [ setImmersiveMode (not model.immersive), clearLinkHints () ]
+                        , Cmd.batch [ setPanel (Panels.target Panels.Closed), positionPage Panels.reading, clearLinkHints () ]
                         )
 
                     else
@@ -337,6 +345,9 @@ updateModel msg model =
                             Set.remove tag model.selectedTags
                 }
 
+        SetTagPicker isOpen ->
+            ( { model | tagPickerOpen = isOpen }, Cmd.none )
+
         NavigateCategory category ->
             updateFilters { model | category = category, menu = False }
 
@@ -348,14 +359,14 @@ updateModel msg model =
                 updated =
                     { model | indexPage = clamp 1 (NotebookQuery.pageCount model) number, selectedNote = Nothing }
             in
-            ( updated, Cmd.batch [ persistIndex updated, scrollNotebook () ] )
+            ( updated, Cmd.batch [ persistIndex updated, positionPage Panels.notebook ] )
 
         SetPageSize value ->
             let
                 updated =
                     { model | pageSize = IndexQuery.validPageSize (Maybe.withDefault 10 (String.toInt value)), indexPage = 1, selectedNote = Nothing }
             in
-            ( updated, Cmd.batch [ persistIndex updated, scrollNotebook () ] )
+            ( updated, Cmd.batch [ persistIndex updated, positionPage Panels.notebook ] )
 
         ToggleTheme ->
             let
@@ -372,21 +383,21 @@ updateModel msg model =
             ( { model | menu = not model.menu }, Cmd.none )
 
         OpenLauncher ->
-            ( { model | launcherOpen = True, keymapOpen = False, launcherQuery = "", launcherSelection = 0, menu = False }
-            , setSearchOpen True
+            ( { model | panel = Panels.Search, launcherQuery = "", launcherSelection = 0, menu = False, tagPickerOpen = False }
+            , setPanel (Panels.target Panels.Search)
             )
 
         CloseLauncher ->
-            ( { model | launcherOpen = False }, setSearchOpen False )
+            closePanel Panels.Search model
 
         OpenKeymap ->
-            ( { model | launcherOpen = False, keymapOpen = True, menu = False }, setKeymapOpen True )
+            ( { model | panel = Panels.Keymap, menu = False, tagPickerOpen = False }, setPanel (Panels.target Panels.Keymap) )
 
         CloseKeymap ->
-            ( { model | keymapOpen = False }, setKeymapOpen False )
+            closePanel Panels.Keymap model
 
         LauncherQuery query ->
-            ( { model | launcherQuery = query, launcherSelection = 0 }, scrollSearchResult 0 )
+            ( { model | launcherQuery = query, launcherSelection = 0 }, positionPage (Panels.searchResult 0) )
 
         MoveLauncher direction ->
             let
@@ -400,7 +411,7 @@ updateModel msg model =
                     else
                         modBy count (model.launcherSelection + direction)
             in
-            ( { model | launcherSelection = selection }, scrollSearchResult selection )
+            ( { model | launcherSelection = selection }, positionPage (Panels.searchResult selection) )
 
         SelectLauncher selection ->
             ( { model | launcherSelection = selection }, Cmd.none )
@@ -416,6 +427,15 @@ updateModel msg model =
 
         ClearTags ->
             updateFilters { model | selectedTags = Set.empty }
+
+
+closePanel : Panels.Panel -> Model -> ( Model, Cmd Msg )
+closePanel panel model =
+    if model.panel == panel then
+        ( { model | panel = Panels.Closed }, setPanel (Panels.target Panels.Closed) )
+
+    else
+        ( model, Cmd.none )
 
 
 updateFilters : Model -> ( Model, Cmd Msg )
@@ -465,6 +485,7 @@ view model =
                 , goToPage = GoToPage
                 , setPageSize = SetPageSize
                 , selectNote = SelectNote
+                , setTagPicker = SetTagPicker
                 }
                 model
 

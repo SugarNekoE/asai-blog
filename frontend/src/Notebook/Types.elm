@@ -14,6 +14,7 @@ type alias State a =
         , indexPage : Int
         , pageSize : Int
         , selectedNote : Maybe String
+        , tagPickerOpen : Bool
     }
 
 
@@ -25,4 +26,5 @@ type alias Actions msg =
     , goToPage : Int -> msg
     , setPageSize : String -> msg
     , selectNote : String -> msg
+    , setTagPicker : Bool -> msg
     }
