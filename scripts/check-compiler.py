@@ -99,11 +99,16 @@ plain code
     assert "frobnicate" not in post["searchText"]
     assert "plain code" in post["searchText"]
     outline = re.search(
-        r'<script id="article-headings" type="application/json">(.*?)</script>', html
+        r'<script id="site-bootstrap" type="application/json">(.*?)</script>', html
     )
     assert outline is not None
     assert "\\u003c/script>" in outline.group(1)
-    headings = cast(JsonValue, json.loads(outline.group(1)))
+    bootstrap = cast(JsonValue, json.loads(outline.group(1)))
+    assert isinstance(bootstrap, dict)
+    assert bootstrap["page"] == "post"
+    assert bootstrap["category"] == "编程"
+    assert bootstrap["indexUrl"] == "/api/posts.json"
+    headings = bootstrap["headings"]
     assert isinstance(headings, list) and len(headings) == 2
     assert isinstance(headings[0], dict) and headings[0]["id"] == "hello-world"
     assert (

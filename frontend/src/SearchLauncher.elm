@@ -13,7 +13,6 @@ import Styles.Dialog as DialogStyles
 type alias State a =
     { a
         | posts : List Post
-        , failed : Bool
         , panel : Panels.Panel
         , launcherQuery : String
         , launcherSelection : Int
@@ -147,18 +146,14 @@ view actions model =
                 [ text "Words search titles and descriptions. Use #tag or /category; combine them to narrow the results." ]
             , p [ class "launcher-count", css [ DialogStyles.launcherCount ], attribute "role" "status" ]
                 [ text
-                    (if model.failed then
-                        "The search index is unavailable. Reload the page to try again."
+                    (String.fromInt (List.length matchingPosts)
+                        ++ " matching notes"
+                        ++ (if List.length matchingPosts > 20 then
+                                " · showing the first 20"
 
-                     else
-                        String.fromInt (List.length matchingPosts)
-                            ++ " matching notes"
-                            ++ (if List.length matchingPosts > 20 then
-                                    " · showing the first 20"
-
-                                else
-                                    ""
-                               )
+                            else
+                                ""
+                           )
                     )
                 ]
             , div
@@ -169,7 +164,7 @@ view actions model =
                 , attribute "aria-label" "Matching notes"
                 ]
                 (List.indexedMap (launcherResult actions model.launcherSelection) visibleResults)
-            , if List.isEmpty visibleResults && not model.failed then
+            , if List.isEmpty visibleResults then
                 p [ class "launcher-empty", css [ DialogStyles.launcherEmpty ] ] [ text "No notes match. Try another keyword, #tag, or /category." ]
 
               else

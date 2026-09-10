@@ -7,6 +7,7 @@ executable site
   main-is: site.hs
   hs-source-dirs: ., src
   other-modules:
+    Site.Bootstrap
     Site.Markdown
     Site.Page
     Site.Views

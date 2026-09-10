@@ -179,7 +179,8 @@ test('unavailable or incompatible JSON keeps the page readable', async ({ page }
     route.fulfill({ json: { version: 99, posts: [] } }),
   );
   await page.reload();
-  await expect(page.locator('.workspace h1')).toBeVisible();
+  await expect(page.locator('#static-content h1')).toBeVisible();
+  await expect(page.locator('.workspace')).toHaveCount(0);
   await expect(page.locator('.post-row')).toHaveCount(4);
 });
 

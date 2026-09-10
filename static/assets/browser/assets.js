@@ -32,16 +32,11 @@ export function firstPaintOpportunity() {
   });
 }
 
-export function fontsReady(sample) {
-  if (!document.fonts) return Promise.resolve();
-  const cjk = sample.replace(/[^\u3000-\uffff]/g, '');
-  return Promise.allSettled([
-    document.fonts.load('400 16px "Noto Sans"', sample),
-    document.fonts.load('italic 400 16px "Noto Sans"', sample),
-    document.fonts.load('400 16px "Noto Sans Mono"', sample),
-    document.fonts.load('400 16px "Noto Sans CJK SC"', cjk),
-    document.fonts.load('400 16px "Noto Sans Mono CJK SC"', cjk),
-    document.fonts.load('400 20px "Noto Sans Symbols"', '↗'),
-    document.fonts.load('400 20px "Noto Sans Symbols 2"', '◐☼'),
-  ]).then(() => document.fonts.ready);
+export function observeAssets(startup) {
+  pageLoaded.then(() => startup.ports.assetSettled.send('assets'));
+  startup.ports.loadFonts.subscribe((requests) => {
+    Promise.allSettled(requests.map(({ font, sample }) => document.fonts?.load(font, sample)))
+      .then(() => document.fonts?.ready)
+      .then(() => startup.ports.assetSettled.send('fonts'));
+  });
 }

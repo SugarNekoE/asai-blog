@@ -8,7 +8,6 @@ import BrowserPorts exposing (..)
 import Html.Styled as Html exposing (Html, node, text)
 import Html.Styled.Attributes exposing (property)
 import IndexQuery
-import Json.Decode as D
 import Json.Encode as E
 import Keyboard
 import Keymap
@@ -25,7 +24,7 @@ import Task
 
 
 type alias Flags =
-    { index : D.Value
+    { posts : List Post
     , clock : Clock.Sample
     , article : String
     , page : String
@@ -52,7 +51,6 @@ type alias Model =
     , indexPage : Int
     , pageSize : Int
     , menu : Bool
-    , failed : Bool
     , panel : Panels.Panel
     , tagPickerOpen : Bool
     , launcherQuery : String
@@ -126,11 +124,8 @@ init flags =
     let
         queryState =
             IndexQuery.parse flags.search
-
-        decoded =
-            D.decodeValue Post.indexDecoder flags.index
     in
-    ( { posts = Result.withDefault [] decoded
+    ( { posts = flags.posts
       , timings = Nothing
       , clock = Clock.fromBrowser flags.clock
       , article = flags.article
@@ -150,7 +145,6 @@ init flags =
       , indexPage = queryState.indexPage
       , pageSize = queryState.pageSize
       , menu = False
-      , failed = Result.toMaybe decoded == Nothing
       , panel = Panels.Closed
       , tagPickerOpen = False
       , launcherQuery = ""
@@ -267,7 +261,7 @@ updateModel msg model =
 
                 "open-note" ->
                     ( model
-                    , if model.page == "index" && not model.failed then
+                    , if model.page == "index" then
                         NotebookQuery.selectedIndexNote model
                             |> Maybe.map (.url >> Navigation.load)
                             |> Maybe.withDefault Cmd.none
@@ -476,7 +470,7 @@ view model =
         , toggleImmersive = PageCommand "immersive"
         }
         model
-        (if model.page == "index" && not model.failed then
+        (if model.page == "index" then
             Notebook.view
                 { search = Search
                 , setTag = SetTag

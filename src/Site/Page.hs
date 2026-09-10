@@ -3,6 +3,7 @@
 module Site.Page (index, notFound, post, render) where
 
 import Control.Monad (forM_)
+import qualified Site.Bootstrap as Bootstrap
 import Text.Blaze.Html.Renderer.String (renderHtml)
 import Text.Blaze.Html5 ((!))
 import qualified Text.Blaze.Html5 as H
@@ -25,7 +26,7 @@ notFound = Metadata "Page not found" "This path is unexplored." "404" "" "Page n
 post :: String -> String -> String -> Metadata
 post name summary folder = Metadata name summary "post" folder folder
 
-render :: Metadata -> String -> H.Html -> String
+render :: Metadata -> [Bootstrap.Heading] -> H.Html -> String
 render metadata headings content = renderHtml $
   H.docTypeHtml ! A.lang "en" ! H.customAttribute "data-theme" "dark" $ do
     H.head $ do
@@ -41,11 +42,11 @@ render metadata headings content = renderHtml $
       H.link ! A.rel "stylesheet" ! A.href "/assets/print.css?v=clay-1" ! A.media "print"
       H.script ! A.src "/assets/theme.js" $ mempty
       H.script ! A.src "/assets/loading.js" $ mempty
-      H.script ! A.defer "" ! A.src "/assets/elm.js?v=elm-panels-1" $ mempty
+      H.script ! A.defer "" ! A.src "/assets/elm.js?v=elm-startup-1" $ mempty
       H.script ! A.defer "" ! A.src "/assets/code-blocks.js?v=2" $ mempty
-      H.script ! A.type_ "module" ! A.src "/assets/boot.js?v=elm-panels-1" $ mempty
+      H.script ! A.type_ "module" ! A.src "/assets/boot.js?v=elm-startup-1" $ mempty
     H.body ! H.customAttribute "data-page" (H.toValue $ kind metadata) ! H.customAttribute "data-category" (H.toValue $ category metadata) $ do
-      H.script ! A.id "article-headings" ! A.type_ "application/json" $ H.preEscapedToHtml headings
+      H.script ! A.id "site-bootstrap" ! A.type_ "application/json" $ H.preEscapedToHtml $ Bootstrap.render (kind metadata) (category metadata) headings
       loadingScreen
       H.div ! A.id "app" $
         H.div ! A.class_ "fallback" $ do

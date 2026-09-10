@@ -1,13 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Site.Markdown (codeBlockToolbar, headingId, headingsJson, readerOptions) where
+module Site.Markdown (articleHeadings, codeBlockToolbar, headingId, readerOptions) where
 
-import Data.Aeson (Value, encode, object, (.=))
-import qualified Data.ByteString.Lazy as BL
 import Data.Maybe (fromMaybe, listToMaybe)
 import qualified Data.Text as T
-import Data.Text.Encoding (decodeUtf8)
 import Hakyll (defaultHakyllReaderOptions)
+import Site.Bootstrap (Heading (..))
 import Site.Views (copyButton)
 import Text.Blaze.Html.Renderer.String (renderHtml)
 import Text.Pandoc (Block (..), Extension (..), Format (..), Inline (..), Pandoc, ReaderOptions (..), enableExtension, readMarkdown, runPure)
@@ -43,10 +41,10 @@ headingId heading = case runPure (readMarkdown readerOptions ("## " <> heading))
     _ -> heading
   Left _ -> heading
 
-headingsJson :: Pandoc -> String
-headingsJson = T.unpack . T.replace "<" "\\u003c" . decodeUtf8 . BL.toStrict . encode . query heading
+articleHeadings :: Pandoc -> [Heading]
+articleHeadings = query heading
   where
-    heading :: Block -> [Value]
-    heading (Header level (ident, _, _) label)
-      | level `elem` [2, 3] && not (T.null ident) = [object ["id" .= ident, "label" .= stringify label]]
+    heading :: Block -> [Heading]
+    heading (Header level (ident, _, _) inlines)
+      | level `elem` [2, 3] && not (T.null ident) = [Heading ident (stringify inlines)]
     heading _ = []

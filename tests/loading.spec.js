@@ -122,3 +122,52 @@ test('stalled startup times out to the static page without a late takeover', asy
     releaseScript();
   }
 });
+
+test('invalid index contracts reveal the static article instead of mounting Elm', async ({
+  page,
+}) => {
+  for (const index of [
+    { version: 99, posts: [] },
+    { version: 2, posts: 'invalid' },
+  ]) {
+    await page.route('**/api/posts.json', (route) => route.fulfill({ json: index }));
+    await page.goto('/posts/plain-text-to-a-small-web/');
+    await expect(page.locator('#static-content h1')).toHaveText(
+      'From plain text to a small, personal web',
+    );
+    await expect(page.locator('#static-content')).toBeVisible();
+    await expect(page.locator('#loading-screen')).toHaveCount(0);
+    await expect(page.locator('#app')).toHaveJSProperty('inert', false);
+    await expect(page.locator('.workspace')).toHaveCount(0);
+    await page.unroute('**/api/posts.json');
+  }
+});
+
+test('a late Elm HTTP response cannot replace the fallback after startup expires', async ({
+  page,
+}) => {
+  await page.clock.install();
+  let releaseIndex;
+  const ready = new Promise((resolve) => {
+    releaseIndex = resolve;
+  });
+  await page.route('**/api/posts.json', async (route) => {
+    await ready;
+    await route.continue();
+  });
+  try {
+    await page.goto('/');
+    await expect(page.locator('#loading-status')).toHaveText('loading notes...');
+    await page.clock.fastForward(16000);
+    await expect(page.locator('#static-content')).toBeVisible();
+    await expect(page.locator('#app')).toHaveJSProperty('inert', false);
+    const response = page.waitForResponse('**/api/posts.json');
+    releaseIndex();
+    await response;
+    await page.clock.runFor(100);
+    await expect(page.locator('.workspace')).toHaveCount(0);
+    expect(await page.evaluate(() => performance.getEntriesByName('asai:elm-init'))).toEqual([]);
+  } finally {
+    releaseIndex();
+  }
+});

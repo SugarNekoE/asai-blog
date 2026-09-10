@@ -8,7 +8,7 @@ import qualified Data.Text as T
 import Data.Text.Encoding (decodeUtf8)
 import Data.Time.Format (defaultTimeLocale, formatTime)
 import Hakyll hiding (isExternal)
-import Site.Markdown (codeBlockToolbar, headingId, headingsJson, readerOptions)
+import Site.Markdown (articleHeadings, codeBlockToolbar, headingId, readerOptions)
 import qualified Site.Page as Page
 import qualified Site.Styles as Styles
 import qualified Site.Views as Views
@@ -43,7 +43,7 @@ main = hakyll $ do
       _ <- pure (writePandocWith defaultHakyllWriterOptions doc) >>= saveSnapshot "feed"
       body <- pure (writePandocWith defaultHakyllWriterOptions $ fmap (walk codeBlockToolbar) doc) >>= saveSnapshot "content"
       info <- postInfo body
-      makeItem $ Page.render (Page.post (Views.postTitle info) (Views.postDescription info) (Views.postCategory info)) (headingsJson $ itemBody doc) (Views.article info $ itemBody body)
+      makeItem $ Page.render (Page.post (Views.postTitle info) (Views.postDescription info) (Views.postCategory info)) (articleHeadings $ itemBody doc) (Views.article info $ itemBody body)
 
   create ["api/posts.json"] $ do
     route idRoute
@@ -57,11 +57,11 @@ main = hakyll $ do
     compile $ do
       posts <- loadPosts
       infos <- mapM postInfo posts
-      makeItem $ Page.render Page.index "[]" (Views.index infos)
+      makeItem $ Page.render Page.index [] (Views.index infos)
 
   create ["404.html"] $ do
     route idRoute
-    compile $ makeItem $ Page.render Page.notFound "[]" Views.notFound
+    compile $ makeItem $ Page.render Page.notFound [] Views.notFound
 
   create ["feed.xml"] $ do
     route idRoute
