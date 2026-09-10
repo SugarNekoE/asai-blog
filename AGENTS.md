@@ -15,7 +15,13 @@ and basic commands.
 - `content/attachments/`: public assets copied to the site.
 - `content/templates/` and `content/.obsidian/`: authoring templates and settings.
 - `src/Site/`: typed Haskell page views, Markdown transforms, and article metadata.
+- `src/Site/Bootstrap.hs`: safely encoded page metadata and article headings for Elm.
+- `src/Site/Styles.hs` and `src/Site/Styles/`: Clay styles compiled by Hakyll into
+  base, article, loading, and print stylesheets under `_site/assets/`.
 - `frontend/src/Main.elm`: program state, updates, and view composition.
+- `frontend/src/Startup.elm` and `frontend/src/Startup/`: elm/http index loading,
+  validation, font requests, loading stages, and readiness/timeout decisions.
+- `frontend/src/Panels.elm`: exclusive panel state and focus/scroll destinations.
 - `frontend/src/BrowserPorts.elm`: typed browser interface; `Keyboard.elm` and
   `BrowserClock.elm` own shortcut policies and local-time formatting/scheduling.
 - `frontend/src/Post.elm`: note metadata types and JSON index decoding.
@@ -29,8 +35,9 @@ and basic commands.
   history changes.
 - `frontend/src/Styles/`: scoped elm-css styles, responsive rules, and shared
   typography/token helpers.
-- `static/assets/`: startup, fallback/article, print, palette, and font CSS.
-  `browser/` contains small native DOM/asset adapters; `elm.js` is generated.
+- `static/assets/`: palette/font CSS and the early startup fallback guard.
+  `browser/` contains native DOM/asset adapters; `elm.js` is generated from both
+  the startup worker and main interface in a single bundle.
 - `justfile` and `scripts/`: build, formatting, and verification commands.
 - `devenv.nix`, `devenv.yaml`, and `devenv.lock`: the development environment.
 - `wrangler.jsonc` and `static/_headers`: Pages configuration and HTTP headers.
@@ -66,8 +73,11 @@ and basic commands.
 - Use `Html.Styled` and focused `Styles` modules for interactive components.
   Prefer typed elm-css properties; use `Css.property` for custom properties and
   unsupported CSS features. Use `Styles.Responsive.rules` to preserve query order.
-  Keep plain CSS only for content rendered before/outside Elm, fonts, palette,
-  and print output. Keep native browser operations in small JavaScript adapters.
+  Use focused Clay modules for styles needed before/outside Elm, including
+  article content, the static fallback, loading, and printing. Hakyll generates
+  these stylesheets directly; do not recreate their sources in `static/assets/`.
+  Keep authored CSS for fonts and palette configuration. Keep native browser
+  operations in small JavaScript adapters.
 - Generate code toolbar markup in Hakyll. Keep clipboard access in JavaScript,
   hide copy controls without JavaScript, and omit toolbars from the Atom feed.
 - Preserve standalone article URLs and readable static HTML when JavaScript or
@@ -133,7 +143,8 @@ Preserve these choices unless the user requests a change:
   Close open panels and hints on entry;
   preserve outline preference for restoration on exit. Index, category, and error
   pages must ignore the shortcut, including while panels or link hints are open.
-- Keep print layout in `static/assets/print.css`: content only, A4 margins,
+- Keep print layout in `src/Site/Styles/Print.hs`, generated as `/assets/print.css`:
+  content only, A4 margins,
   dark text on white, and no site controls or overlays. Preserve complete code,
   tables, and images across pages, including in fallback and immersive states.
 - Bundle Noto Sans, Noto Sans Mono, and Noto CJK before generic system fallbacks.
@@ -145,9 +156,14 @@ Preserve these choices unless the user requests a change:
 - Show “Please Be Patient” with the current loading stage while startup assets
   are pending. Reveal the site after fonts, notes, and document assets settle;
   preserve a readable static fallback for failures, timeouts, and no JavaScript.
+  Validate the index in the Elm startup worker and pass typed posts to `Main`.
+  Initialize `Main` after the worker's effect queue drains so its subscriptions
+  are ready before browser events arrive. Late responses must not replace a
+  fallback already revealed by the early startup guard.
 - Footer timings use `loading 67ms / rendered 9ms`, without zero padding.
   Loading means navigation start to the browser load event; rendering means
-  Elm initialization to its first paint opportunity, not subsequent updates.
+  main Elm interface initialization to its first paint opportunity, not startup
+  worker initialization or subsequent updates.
 - The sidebar shows the `sne.moe` link above “CC-BY-SA 4.0”; link the
   license name to `https://creativecommons.org/licenses/by-sa/4.0/`. Place the
   `?` keymap button beside these two lines, not in the page footer.
