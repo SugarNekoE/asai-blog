@@ -43,6 +43,10 @@ and basic commands.
   to focused page, clipboard, target-measurement, and other native adapters.
   `elm.js` bundles the startup worker, main interface, and copy-button components.
 - `justfile` and `scripts/`: build, formatting, and verification commands.
+- `tests/test_*.py`: pytest and Playwright browser scenarios.
+- `tests/conftest.py`: isolated local servers, browser configuration, and artifacts.
+- `tests/helpers.py` and `tests/cdp.py`: typed request gates, DOM helpers, and
+  Chromium inspection used for fonts and loading screenshots.
 - `devenv.nix`, `devenv.yaml`, and `devenv.lock`: the development environment.
 - `wrangler.jsonc` and `static/_headers`: Pages configuration and HTTP headers.
 
@@ -57,7 +61,7 @@ and basic commands.
   Preserve `elm-format`'s standard spacing between top-level declarations.
   `just lint` checks formatting, strict Python, JavaScript, and shell scripts;
   `just check-format` checks formatting without modifying files.
-- Python scripts and local stubs must pass strict Pyright and Ruff through
+- Python scripts, browser tests, and local stubs must pass strict Pyright and Ruff through
   `just check-python`. Annotate functions and validate external data. Keep the
   FontTools interfaces used by the font generator in `typings/fontTools/`.
 - Comment only non-obvious rationale or constraints; do not narrate the code.
@@ -179,10 +183,16 @@ Preserve these choices unless the user requests a change:
 
 - Run checks appropriate to the change. `just check` builds both layers and
   verifies generated artifacts, links, categories, drafts, and compiler behavior.
-- For UI changes, run the relevant Playwright tests against current generated
-  output (`npm test`, or `npm test -- --grep '...'`). Use `just test` for the full
-  build/check/browser suite. Install tool dependencies with `npm ci` as needed.
-- On NixOS, set `CHROMIUM_PATH` to a Nix-provided Chromium when needed. Use the
+- For UI changes, run Python Playwright tests against current generated output
+  with `just test-browser`, optionally passing a file and `-k` expression. Use
+  `just test` for the full build/check/browser suite. Devenv supplies pytest,
+  pytest-playwright, and pytest-xdist; do not reintroduce the Node test runner.
+- Keep test orchestration, fixtures, and assertions in Python. Use JavaScript
+  snippets only for execution inside the browser, such as clipboard mocks and
+  DOM/performance inspection. Initialization scripts must invoke their functions.
+- Each pytest worker owns a local server on a free port; avoid fixed test URLs.
+  Preserve request gating, context isolation, screenshots, PDFs, and failure traces.
+- On Linux, devenv supplies `CHROMIUM_PATH` for the Chromium test suite. Use the
   existing Pages runtime wrapper for `just preview`.
 - Check desktop and mobile rendering when layout changes. Do not add tests that
   only mirror trivial edits; do not claim checks passed unless they were run.

@@ -9,8 +9,8 @@ Obsidian vault; the generated site can be uploaded to Cloudflare Pages.
 | `devenv.nix`, `devenv.yaml`, `devenv.lock`                                    | Development environment and pinned dependencies                              |
 | `justfile`                                                                    | Build, development, formatting, testing, and deployment commands             |
 | `scripts/`                                                                    | Build entrypoints, artifact checks, and font generation                      |
-| `pyproject.toml`                                                              | Strict Pyright configuration and Python lint rules                           |
-| `eslint.config.js`                                                            | JavaScript lint rules for browser adapters and tests                         |
+| `pyproject.toml`                                                              | Strict Python checks and pytest configuration                                |
+| `eslint.config.js`                                                            | JavaScript lint rules for browser adapters and tooling                       |
 | `typings/fontTools/`                                                          | Type stubs for the FontTools APIs used by the font generator                 |
 | `site.hs`, `asai-blog.cabal`, `cabal.project`                                 | Hakyll compiler and Haskell package configuration                            |
 | `content/posts/<category>/`                                                   | Markdown notes; only `status: published` is published                        |
@@ -39,14 +39,20 @@ Obsidian vault; the generated site can be uploaded to Cloudflare Pages.
 | `static/assets/browser/runtime.js`, `static/assets/browser/page.js`           | Native Elm initialization, page data, storage, and history adapters          |
 | `static/assets/browser/clipboard.js`, `static/assets/browser/link-targets.js` | Clipboard access and native DOM measurement/hit testing                      |
 | `static/assets/browser/`                                                      | Native focus, keyboard, modal, asset, and trusted-content adapters           |
-| `tests/`, `playwright.config.js`                                              | Browser tests                                                                |
+| `tests/test_*.py`                                                             | Python Playwright browser tests                                              |
+| `tests/conftest.py`, `tests/helpers.py`, `tests/cdp.py`                       | Browser/server fixtures, request gates, and typed Chromium inspection        |
 | `wrangler.jsonc`, `static/_headers`                                           | Cloudflare Pages configuration and HTTP headers                              |
 | `_site/`                                                                      | Generated website; excluded from Git                                         |
 
 Use `devenv shell`, then `npm ci` and `just dev`. Run `just --list` for available
-commands. `just check` verifies generated output; `just test` also runs browser
-tests. Browser tests require Playwright Chromium or an installed Chromium set
-through `CHROMIUM_PATH`.
+commands. `just check` verifies generated output; `just test` also runs the Python
+browser suite. Devenv provides pytest, Playwright, four-worker test execution,
+and a Chromium executable through `CHROMIUM_PATH` on Linux.
+
+Use `just test-browser` against an existing build, or select scenarios with
+`just test-browser tests/test_search.py -k 'focus or keyboard'`. Use `-n 0` for
+serial debugging. Each worker serves `_site/` on an available local port;
+screenshots, PDFs, and failure traces go to `test-results/`.
 
 Run `just ui` after editing Elm or its styles. Restart `just dev` after editing
 Haskell modules, including Clay styles. The startup worker, main interface, and
