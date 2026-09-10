@@ -1,1 +1,3 @@
 packages: .
+with-compiler: .devenv/profile/bin/ghc
+with-hc-pkg: .devenv/profile/bin/ghc-pkg
