@@ -10,6 +10,13 @@ executable site
     Site.Markdown
     Site.Page
     Site.Views
+    Site.Styles
+    Site.Styles.Article
+    Site.Styles.Base
+    Site.Styles.Code
+    Site.Styles.Loading
+    Site.Styles.Print
+    Site.Styles.Theme
   default-language: Haskell2010
   ghc-options: -Wall -threaded
   build-depends:
@@ -19,6 +26,7 @@ executable site
     pandoc-types >= 1.23 && < 1.24,
     aeson >= 2.1 && < 2.3,
     blaze-html >= 0.9 && < 0.10,
+    clay >= 0.16 && < 0.17,
     bytestring,
     text,
     time,

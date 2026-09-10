@@ -33,6 +33,7 @@
         p.pandoc
         p.aeson
         p.blaze-html
+        p.clay
       ]);
       cabal.enable = true;
       lsp.enable = true;

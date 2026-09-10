@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 cd "$(dirname "$0")/.."
+shopt -s globstar
 
 case "${1:-write}" in
   write)
@@ -40,7 +41,7 @@ esac
   '*.js'
 
 elm-format frontend/src "$elm_mode"
-ormolu --mode "$ormolu_mode" site.hs src/Site/*.hs
+ormolu --mode "$ormolu_mode" site.hs src/**/*.hs
 nixfmt "${nixfmt_args[@]}" devenv.nix
 ruff format "${ruff_args[@]}" scripts typings
 shfmt -s -i 2 -ci "$shfmt_mode" scripts/*.sh .envrc

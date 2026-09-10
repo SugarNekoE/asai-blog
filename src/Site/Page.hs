@@ -36,9 +36,9 @@ render metadata headings content = renderHtml $
       H.meta ! A.name "description" ! A.content (H.toValue $ description metadata)
       H.link ! A.rel "icon" ! A.href "/assets/favicon.svg" ! A.type_ "image/svg+xml"
       H.link ! A.rel "alternate" ! A.type_ "application/atom+xml" ! A.title "Asai Blog" ! A.href "/feed.xml"
-      forM_ ["noto.css?v=1", "fonts.css?v=noto-bundled-1", "colors.css?v=1", "base.css?v=1", "loading.css?v=1", "article.css?v=1"] $ \file ->
+      forM_ ["noto.css?v=1", "fonts.css?v=noto-bundled-1", "colors.css?v=1", "base.css?v=clay-1", "loading.css?v=clay-1", "article.css?v=clay-1"] $ \file ->
         H.link ! A.rel "stylesheet" ! A.href (H.toValue $ "/assets/" ++ file)
-      H.link ! A.rel "stylesheet" ! A.href "/assets/print.css?v=3" ! A.media "print"
+      H.link ! A.rel "stylesheet" ! A.href "/assets/print.css?v=clay-1" ! A.media "print"
       H.script ! A.src "/assets/theme.js" $ mempty
       H.script ! A.src "/assets/loading.js" $ mempty
       H.script ! A.defer "" ! A.src "/assets/elm.js?v=elm-styles-1" $ mempty

@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-import Control.Monad (filterM)
+import Control.Monad (filterM, forM_)
 import Data.Aeson (Value, encode, object, (.=))
 import qualified Data.ByteString.Lazy as BL
 import Data.Maybe (fromMaybe)
@@ -10,6 +10,7 @@ import Data.Time.Format (defaultTimeLocale, formatTime)
 import Hakyll hiding (isExternal)
 import Site.Markdown (codeBlockToolbar, headingId, headingsJson, readerOptions)
 import qualified Site.Page as Page
+import qualified Site.Styles as Styles
 import qualified Site.Views as Views
 import System.FilePath (makeRelative, splitDirectories, takeBaseName, takeExtension, takeFileName)
 import Text.Pandoc (Inline (..), def, runPure, writePlain)
@@ -17,6 +18,11 @@ import Text.Pandoc.Walk (walk, walkM)
 
 main :: IO ()
 main = hakyll $ do
+  forM_ Styles.sheets $ \(path, stylesheet) ->
+    create [fromFilePath path] $ do
+      route idRoute
+      compile $ makeItem stylesheet
+
   match "static/**" $ do
     route $ gsubRoute "static/" (const "")
     compile copyFileCompiler
