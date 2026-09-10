@@ -17,8 +17,8 @@ check: lint build
 
 check-python:
     pyright
-    ruff check scripts typings
-    ruff format --check scripts typings
+    ruff check scripts typings tests
+    ruff format --check scripts typings tests
 
 # Recompile Elm after editing frontend/src.
 ui:
@@ -34,15 +34,20 @@ check-format:
 
 # Lint source files; Elm and Haskell compiler checks also run in `just check`.
 lint: check-format check-python
-    ./node_modules/.bin/eslint --max-warnings 0 static/assets tests *.js
+    ./node_modules/.bin/eslint --max-warnings 0 static/assets *.js
     shellcheck scripts/*.sh .envrc
 
 fonts noto cjk:
     python3 scripts/fonts.py {{ quote(noto) }} {{ quote(cjk) }}
 
-# Exercise the UI (run npm ci and npx playwright install chromium first).
+# Build, check, and exercise the UI with pytest and Playwright.
 test: check
-    npm test
+    just test-browser
+
+# Run browser tests against the current build, optionally selecting files or cases.
+[positional-arguments]
+test-browser *args:
+    pytest "$@"
 
 # Run the output locally with Cloudflare's Pages routing.
 preview: build

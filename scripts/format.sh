@@ -37,12 +37,11 @@ esac
   'static/assets/*.{css,js,svg}' \
   'static/assets/browser/*.js' \
   'static/assets/fonts/SOURCES.md' \
-  'tests/*.js' \
   '*.js'
 
 elm-format frontend/src "$elm_mode"
 ormolu --mode "$ormolu_mode" site.hs src/**/*.hs
 nixfmt "${nixfmt_args[@]}" devenv.nix
-ruff format "${ruff_args[@]}" scripts typings
+ruff format "${ruff_args[@]}" scripts typings tests
 shfmt -s -i 2 -ci "$shfmt_mode" scripts/*.sh .envrc
 just --unstable --fmt "${just_args[@]}"

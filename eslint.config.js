@@ -13,16 +13,10 @@ module.exports = [
     },
   },
   {
-    files: ['*.js', 'tests/*.js'],
+    files: ['*.js'],
     languageOptions: {
       sourceType: 'commonjs',
       globals: globals.node,
-    },
-  },
-  {
-    files: ['tests/*.js'],
-    languageOptions: {
-      globals: globals.browser,
     },
   },
 ];
