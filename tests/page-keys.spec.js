@@ -1,5 +1,51 @@
 const { test, expect } = require('@playwright/test');
 
+test('Elm hint geometry clips viewport edges and excludes hidden or covered targets', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/');
+  await expect(page.locator('.workspace')).toBeVisible();
+  await page.evaluate(() => {
+    const fixture = document.createElement('div');
+    fixture.style.cssText = 'position:fixed;inset:0;z-index:100;pointer-events:none';
+    for (const [name, left, top, extra] of [
+      ['Edge left', -20, 100, ''],
+      ['Edge bottom', 1420, 890, ''],
+      ['Transparent', 500, 100, 'opacity:0'],
+      ['Covered', 700, 100, ''],
+      ['Disabled', 900, 100, ''],
+    ]) {
+      const link = document.createElement('a');
+      link.href = '/?fixture=' + name;
+      link.dataset.linkHint = name;
+      link.setAttribute('aria-label', 'Alternative name');
+      link.textContent = name;
+      link.style.cssText = `position:absolute;left:${left}px;top:${top}px;width:100px;height:40px;pointer-events:auto;${extra}`;
+      if (name === 'Disabled') link.setAttribute('aria-disabled', 'true');
+      fixture.append(link);
+    }
+    const cover = document.createElement('div');
+    cover.style.cssText =
+      'position:absolute;left:700px;top:100px;width:100px;height:40px;background:black;pointer-events:auto';
+    fixture.append(cover);
+    document.body.append(fixture);
+  });
+  await page.keyboard.press('f');
+  const left = page.locator('.link-hint[title="Edge left"]');
+  const bottom = page.locator('.link-hint[title="Edge bottom"]');
+  await expect(left).toBeVisible();
+  await expect(left).toHaveCSS('left', '4px');
+  await expect(bottom).toHaveCSS('left', '1400px');
+  await expect(bottom).toHaveCSS('top', '876px');
+  for (const name of ['Transparent', 'Covered', 'Disabled', 'Alternative name']) {
+    await expect(page.locator(`.link-hint[title="${name}"]`)).toHaveCount(0);
+  }
+  const key = await left.getAttribute('data-hint');
+  await page.keyboard.type(key);
+  await expect(page).toHaveURL(/fixture=Edge%20left/);
+});
+
 test('mouse-focused categories and page-size controls do not gain Tab outlines from shortcuts', async ({
   page,
 }) => {

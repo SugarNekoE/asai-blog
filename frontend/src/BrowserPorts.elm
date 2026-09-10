@@ -1,8 +1,8 @@
-port module BrowserPorts exposing (browserReady, clearFocus, clearLinkHints, clockRefreshRequested, collectLinkHints, followLinkHint, hintKey, keyboardPressed, linkHintsReady, positionPage, replaceQuery, setKeyboardKeys, setPanel, setTheme, timingsChanged)
+port module BrowserPorts exposing (browserReady, clearFocus, clearLinkHints, clockRefreshRequested, collectLinkHints, followLinkHint, keyboardPressed, linkHintsReady, linkTargetsChanged, linkTargetsCollected, positionPage, probeLinkTargets, replaceQuery, setKeyboardKeys, setPanel, setTheme, timingsChanged)
 
 import Keyboard
 import Layout exposing (PageTimings)
-import LinkHints exposing (Target)
+import LinkHints.Targets exposing (Activation, Candidate, Probe, Snapshot)
 import Panels
 
 
@@ -42,10 +42,16 @@ port collectLinkHints : () -> Cmd msg
 port clearLinkHints : () -> Cmd msg
 
 
-port followLinkHint : Int -> Cmd msg
+port followLinkHint : Activation -> Cmd msg
 
 
-port linkHintsReady : (List Target -> msg) -> Sub msg
+port linkHintsReady : (List Probe -> msg) -> Sub msg
 
 
-port hintKey : (String -> msg) -> Sub msg
+port linkTargetsCollected : (Snapshot -> msg) -> Sub msg
+
+
+port probeLinkTargets : List Candidate -> Cmd msg
+
+
+port linkTargetsChanged : (() -> msg) -> Sub msg

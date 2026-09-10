@@ -8,7 +8,7 @@ import {
 import { connectDialogs } from './browser/dialogs.js?v=elm-startup-1';
 import { connectFocus } from './browser/focus.js';
 import { connectKeyboard } from './browser/keyboard.js';
-import { connectLinks } from './browser/links.js';
+import { connectLinkTargets } from './browser/link-targets.js?v=elm-controls-1';
 
 const loading = window.AsaiLoading;
 const fallback = document.getElementById('app');
@@ -62,7 +62,7 @@ async function mountInterface(bootstrap, posts) {
   app.ports.replaceQuery.subscribe((query) => {
     history.replaceState(null, '', location.pathname + query + location.hash);
   });
-  connectLinks(app);
+  connectLinkTargets(app);
   const keyboardReady = connectKeyboard(app);
   app.ports.browserReady.send(null);
   await keyboardReady;

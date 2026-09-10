@@ -42,8 +42,8 @@ render metadata headings content = renderHtml $
       H.link ! A.rel "stylesheet" ! A.href "/assets/print.css?v=clay-1" ! A.media "print"
       H.script ! A.src "/assets/theme.js" $ mempty
       H.script ! A.src "/assets/loading.js" $ mempty
-      H.script ! A.defer "" ! A.src "/assets/elm.js?v=elm-copy-controls-1" $ mempty
-      H.script ! A.type_ "module" ! A.src "/assets/boot.js?v=elm-copy-controls-1" $ mempty
+      H.script ! A.defer "" ! A.src "/assets/elm.js?v=elm-link-controls-1" $ mempty
+      H.script ! A.type_ "module" ! A.src "/assets/boot.js?v=elm-link-controls-1" $ mempty
     H.body ! H.customAttribute "data-page" (H.toValue $ kind metadata) ! H.customAttribute "data-category" (H.toValue $ category metadata) $ do
       H.script ! A.id "site-bootstrap" ! A.type_ "application/json" $ H.preEscapedToHtml $ Bootstrap.render (kind metadata) (category metadata) headings
       loadingScreen

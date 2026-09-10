@@ -12,7 +12,8 @@ import Json.Encode as E
 import Keyboard
 import Keymap
 import Layout exposing (PageTimings)
-import LinkHints exposing (Hint, Target)
+import LinkHints exposing (Hint)
+import LinkHints.Targets as Targets
 import Notebook
 import Notebook.Filters as Filters
 import Notebook.Query as NotebookQuery
@@ -91,7 +92,8 @@ type Msg
     | SetPageSize String
     | PageCommand String
     | SelectNote String
-    | HintsReady (List Target)
+    | HintsCollected Targets.Snapshot
+    | HintsReady (List Targets.Probe)
     | HintKey String
 
 
@@ -109,7 +111,15 @@ main =
                     , browserReady (always BrowserReady)
                     , keyboardPressed KeyboardPressed
                     , linkHintsReady HintsReady
-                    , hintKey HintKey
+                    , linkTargetsCollected HintsCollected
+                    , if model.hintsActive then
+                        Sub.batch
+                            [ linkTargetsChanged (always (HintKey "Escape"))
+                            , Browser.Events.onResize (\_ _ -> HintKey "Escape")
+                            ]
+
+                      else
+                        Sub.none
                     , if model.tagPickerOpen then
                         Browser.Events.onClick (Filters.outsideClick (SetTagPicker False))
 
@@ -279,9 +289,18 @@ updateModel msg model =
         SelectNote url ->
             ( { model | selectedNote = Just url }, Cmd.none )
 
-        HintsReady hints ->
+        HintsCollected snapshot ->
+            ( model
+            , if model.hintsActive then
+                probeLinkTargets (Targets.candidates snapshot)
+
+              else
+                Cmd.none
+            )
+
+        HintsReady probes ->
             ( if model.hintsActive then
-                { model | hints = LinkHints.assign hints }
+                { model | hints = LinkHints.assign (Targets.visible probes) }
 
               else
                 model
@@ -308,7 +327,9 @@ updateModel msg model =
                 in
                 case match of
                     Just hint ->
-                        ( { model | hintsActive = False, hints = [], hintPrefix = "" }, followLinkHint hint.id )
+                        ( { model | hintsActive = False, hints = [], hintPrefix = "" }
+                        , followLinkHint { id = hint.id, hitX = hint.hitX, hitY = hint.hitY }
+                        )
 
                     Nothing ->
                         ( { model | hintPrefix = prefix }, Cmd.none )

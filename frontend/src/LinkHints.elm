@@ -1,8 +1,9 @@
-module LinkHints exposing (Hint, Target, assign, view)
+module LinkHints exposing (Hint, assign, view)
 
 import Array
 import Html.Styled as Html exposing (Html, div, span, text)
 import Html.Styled.Attributes exposing (attribute, class, css, style, title)
+import LinkHints.Targets exposing (Candidate)
 import Styles.Hints as HintsStyles
 
 
@@ -12,18 +13,12 @@ type alias Hint =
     , label : String
     , x : Float
     , y : Float
+    , hitX : Float
+    , hitY : Float
     }
 
 
-type alias Target =
-    { id : Int
-    , label : String
-    , x : Float
-    , y : Float
-    }
-
-
-assign : List Target -> List Hint
+assign : List Candidate -> List Hint
 assign targets =
     let
         alphabet =
@@ -60,6 +55,8 @@ assign targets =
             , label = target.label
             , x = target.x
             , y = target.y
+            , hitX = target.hitX
+            , hitY = target.hitY
             }
         )
         targets
