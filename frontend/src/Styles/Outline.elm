@@ -12,6 +12,8 @@ pageOutline =
     batch
         [ position sticky
         , property "grid-column" "3"
+        , property "justify-self" "end"
+        , width (pct 100)
         , maxWidth (px 200)
         , top (px 32)
         , alignSelf start
@@ -49,6 +51,7 @@ pageOutline =
             [ ( Responsive.outlineNarrow
               , [ position static
                 , property "grid-column" "1"
+                , property "justify-self" "stretch"
                 , order (int -1)
                 , width (pct 100)
                 , maxWidth (px 730)

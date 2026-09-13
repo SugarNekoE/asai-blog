@@ -29,7 +29,7 @@ def test_index_and_notes_share_content_width_and_alignment_with_or_without_an_ou
         expect(page.locator(".workspace")).to_be_visible()
         index = bounds(page.locator(".page-content"))
         intro = bounds(page.locator(".intro"))
-        page.goto("/posts/plain-text-to-a-small-web/")
+        page.locator(".post-row h3 a").first.click()
         expect(page.locator(".workspace")).to_be_visible()
         if width < 1600:
             expect(page.locator(".page-outline")).to_have_count(0)
@@ -321,7 +321,9 @@ def test_article_outline_is_transparent_stays_on_the_right_and_adapts_to_narrow_
     page: Page,
 ) -> None:
     page.set_viewport_size({"width": 1920, "height": 900})
-    page.goto("/posts/plain-text-to-a-small-web/")
+    page.goto("/")
+    page.locator(".post-row h3 a").first.click()
+    article_url = page.url
     outline = page.locator(".main-content > .page-outline")
     expect(outline).to_be_visible()
     expect(
@@ -333,15 +335,18 @@ def test_article_outline_is_transparent_stays_on_the_right_and_adapts_to_narrow_
     assert panel["x"] > article["x"] + article["width"]
     assert panel["x"] + panel["width"] > 1380
     page.screenshot(path="test-results/outline-desktop.png", full_page=True)
-    outline.get_by_role("link", name="Keep the build disposable", exact=True).click()
-    expect(page).to_have_url(re.compile("#keep-the-build-disposable$"))
-    expect(page.locator("#keep-the-build-disposable")).to_be_in_viewport()
+    link = outline.get_by_role("link").last
+    target = link.get_attribute("href")
+    assert target is not None and target.startswith("#")
+    link.click()
+    expect(page).to_have_url(re.compile(re.escape(target) + "$"))
+    expect(page.locator(target)).to_be_in_viewport()
     expect(outline).to_be_in_viewport()
     assert bounds(outline)["y"] >= 0
     assert bounds(outline)["y"] <= 33
     for width in [1440, 1366, 1024, 768, 390]:
         page.set_viewport_size({"width": width, "height": 900})
-        page.goto("/posts/plain-text-to-a-small-web/")
+        page.goto(article_url)
         expect(page.locator(".workspace")).to_be_visible()
         expect(outline).to_have_count(0)
         page.keyboard.press("o")

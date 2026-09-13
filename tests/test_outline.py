@@ -11,6 +11,37 @@ def open_article(page: Page) -> None:
     expect(page.locator(".prose")).to_be_visible()
 
 
+def test_wide_screen_outline_uses_right_gutter_without_shifting_article(
+    page: Page,
+) -> None:
+    for width in [1600, 1920, 2048, 2560]:
+        page.set_viewport_size({"width": width, "height": 1000})
+        page.goto("/")
+        expect(page.locator(".workspace")).to_be_visible()
+        index = bounds(page.locator(".page-content"))
+        page.locator(".post-row h3 a").first.click()
+        outline = page.locator(".page-outline")
+        expect(outline).to_be_visible()
+        article = bounds(page.locator(".prose"))
+        panel = bounds(outline)
+        assert abs(article["x"] - index["x"]) < 1
+        assert abs(article["width"] - index["width"]) < 1
+        assert abs(article["width"] - 730) < 1
+        assert abs(panel["width"] - 200) < 1
+        assert abs(width - panel["x"] - panel["width"] - 40) < 1
+        assert panel["x"] - article["x"] - article["width"] >= 64
+        assert (
+            page.evaluate("() => document.documentElement.scrollWidth <= innerWidth")
+            is True
+        )
+        page.screenshot(path=f"test-results/outline-wide-{width}.png")
+        page.keyboard.press("o")
+        expect(outline).to_have_count(0)
+        hidden = bounds(page.locator(".prose"))
+        assert abs(hidden["x"] - article["x"]) < 1
+        assert abs(hidden["width"] - article["width"]) < 1
+
+
 def test_outline_default_follows_screen_width_until_manually_toggled(
     page: Page,
 ) -> None:
