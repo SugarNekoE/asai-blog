@@ -57,7 +57,16 @@ view actions model =
                 [ text "The notebook" ]
             , span
                 [ css [ IntroStyles.noteCount ] ]
-                [ text (String.fromInt (List.length model.posts) ++ " notes remaining") ]
+                [ text
+                    (String.fromInt (List.length model.posts)
+                        ++ (if List.length model.posts == 1 then
+                                " note below"
+
+                            else
+                                " notes below"
+                           )
+                    )
+                ]
             ]
         , div [ class "filterbar", css [ FiltersStyles.filterbar ] ]
             [ Filters.view actions model
