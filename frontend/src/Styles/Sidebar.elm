@@ -29,9 +29,10 @@ sidebar =
               )
             , ( "(max-width: 760px)"
               , [ display none
-                , top (px 60)
+                , top (px Responsive.mobileTopbarHeight)
                 , width (px 260)
-                , property "box-shadow" "20px 0 40px var(--shadow-panel)"
+                , property "box-shadow" "4px 0 12px var(--shadow-popover)"
+                , property "overscroll-behavior" "contain"
                 ]
               )
             , ( "(max-width: 760px)"

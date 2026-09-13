@@ -135,7 +135,14 @@ mainContent =
                 ]
               )
             , ( "(max-width: 1100px)", [ padding3 (px 50) (px gutter) (px 35) ] )
-            , ( "(max-width: 760px)", [ padding3 (px 40) (px 24) (px 25) ] )
+            , ( "(max-width: 760px)"
+              , [ padding3 (px 40) (px 24) (px 25)
+                , Global.descendants
+                    [ Global.selector "[id]"
+                        [ property "scroll-margin-top" (String.fromFloat Responsive.mobileTopbarHeight ++ "px") ]
+                    ]
+                ]
+              )
             ]
         ]
 

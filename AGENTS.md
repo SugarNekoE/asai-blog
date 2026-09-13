@@ -56,6 +56,8 @@ static HTML, JSON, and Atom; Elm adds the interactive UI. See
 Unless requested otherwise, preserve the keyboard, focus, modal, filtering,
 responsive, and fallback behavior covered by `tests/`. In particular:
 
+- Keep the mobile menu attached to the sticky header, with a subtle shadow and
+  independent scrolling. Outside clicks/taps close it without blocking the clicked control.
 - Tags combine with AND; category/search context survives clearing tags. Keep URL
   state and pagination (10/30/50/100), resetting the page when results or order change.
 - Search and keymap dialogs are exclusive and contain focus on controls. Preserve

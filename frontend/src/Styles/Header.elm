@@ -11,6 +11,7 @@ topbar : Style
 topbar =
     batch
         [ height (px 65)
+        , flexShrink (num 0)
         , padding2 (px 0) (px 35)
         , displayFlex
         , alignItems center
@@ -23,9 +24,13 @@ topbar =
                 ]
               )
             , ( "(max-width: 760px)"
-              , [ height (px 60)
+              , [ height (px Responsive.mobileTopbarHeight)
                 , padding2 (px 0) (px 15)
                 , justifyContent flexStart
+                , position sticky
+                , top (px 0)
+                , zIndex (int 6)
+                , Theme.background Theme.Bg
                 ]
               )
             ]

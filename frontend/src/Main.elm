@@ -15,8 +15,8 @@ import Layout exposing (PageTimings)
 import LinkHints exposing (Hint)
 import LinkHints.Targets as Targets
 import Notebook
-import Notebook.Filters as Filters
 import Notebook.Query as NotebookQuery
+import OutsideClick
 import Panels
 import Post exposing (Heading, Post)
 import SearchLauncher
@@ -87,6 +87,7 @@ type Msg
     | ToggleSort
     | ToggleTheme
     | ToggleMenu
+    | CloseMenu
     | OpenLauncher
     | CloseLauncher
     | OpenKeymap
@@ -131,7 +132,12 @@ main =
                       else
                         Sub.none
                     , if model.tagPickerOpen then
-                        Browser.Events.onClick (Filters.outsideClick (SetTagPicker False))
+                        Browser.Events.onClick (OutsideClick.excluding [ "tag-picker" ] (SetTagPicker False))
+
+                      else
+                        Sub.none
+                    , if model.menu then
+                        Browser.Events.onClick (OutsideClick.excluding [ "navigation", "mobile-menu-toggle" ] CloseMenu)
 
                       else
                         Sub.none
@@ -436,6 +442,9 @@ updateModel msg model =
 
         ToggleMenu ->
             ( { model | menu = not model.menu }, Cmd.none )
+
+        CloseMenu ->
+            ( { model | menu = False }, Cmd.none )
 
         OpenLauncher ->
             ( { model | panel = Panels.Search, launcherQuery = "", launcherSelection = 0, menu = False, tagPickerOpen = False }

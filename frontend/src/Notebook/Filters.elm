@@ -1,4 +1,4 @@
-module Notebook.Filters exposing (outsideClick, view)
+module Notebook.Filters exposing (view)
 
 import Html.Styled exposing (..)
 import Html.Styled.Attributes exposing (..)
@@ -83,32 +83,3 @@ view actions model =
           else
             button [ class "clear-filters", css [ FiltersStyles.clearFilters ], onClick actions.clearTags ] [ text "Clear filters" ]
         ]
-
-
-outsideClick : msg -> D.Decoder msg
-outsideClick close =
-    D.field "target" insidePicker
-        |> D.andThen
-            (\inside ->
-                if inside then
-                    D.fail "Keep the tag picker open"
-
-                else
-                    D.succeed close
-            )
-
-
-insidePicker : D.Decoder Bool
-insidePicker =
-    D.maybe (D.field "id" D.string)
-        |> D.andThen
-            (\identifier ->
-                if identifier == Just "tag-picker" then
-                    D.succeed True
-
-                else
-                    D.oneOf
-                        [ D.field "parentNode" (D.lazy (\_ -> insidePicker))
-                        , D.succeed False
-                        ]
-            )

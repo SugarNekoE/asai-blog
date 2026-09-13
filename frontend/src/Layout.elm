@@ -56,6 +56,7 @@ view actions model content panels =
             [ header [ class "topbar", css [ HeaderStyles.topbar ] ]
                 [ button
                     [ class "icon-button mobile-toggle"
+                    , id "mobile-menu-toggle"
                     , css [ HeaderStyles.iconButton, HeaderStyles.mobileToggle ]
                     , onClick actions.toggleMenu
                     , attribute "aria-label" "Toggle navigation"

@@ -1,7 +1,12 @@
-module Styles.Responsive exposing (outlineBreakpoint, outlineNarrow, rules)
+module Styles.Responsive exposing (mobileTopbarHeight, outlineBreakpoint, outlineNarrow, rules)
 
 import Css exposing (Style, batch)
 import Css.Media as Media
+
+
+mobileTopbarHeight : Float
+mobileTopbarHeight =
+    60
 
 
 outlineBreakpoint : Int
