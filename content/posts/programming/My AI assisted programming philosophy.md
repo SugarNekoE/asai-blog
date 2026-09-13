@@ -67,9 +67,9 @@ But the application is still built for humans, The code should be too.
 
 ---
 
-# My approach
+## My approach
 
-## Rule No. 1: Do not vibe-code prod programs
+### Rule No. 1: Do not vibe-code prod programs
 
 Yes, AI can absolutely create demos.
 
@@ -107,7 +107,7 @@ I say:
 
 That gives the model a much more concrete target.
 
-### The QA round
+#### The QA round
 
 Once the implementation appears complete, I start another review cycle.
 
@@ -119,7 +119,7 @@ I look for details that AI frequently gets wrong. Unnecessary absolute positioni
 
 ---
 
-## Rule No. 2: Use skills and rules aggressively
+### Rule No. 2: Use skills and rules aggressively
 
 Models have habits.
 
@@ -143,7 +143,7 @@ Automatic AI review is useful, but AI reviewing AI often converges toward the sa
 
 ---
 
-## Rule No. 3: Keep a transcript, not just a summary
+### Rule No. 3: Keep a transcript, not just a summary
 
 One of the most useful things I have added to my workflow is a transcript skill.
 
@@ -159,7 +159,7 @@ For some projects, context itself even becomes part of the project infrastructur
 
 ---
 
-## Rule No. 4: Write the commits myself
+### Rule No. 4: Write the commits myself
 
 I consider committing part of engineering, committing means something.
 
@@ -173,7 +173,7 @@ I generally use Conventional Commits, if more explanation is necessary, I add it
 
 ---
 
-# So, finally
+## So, finally
 
 AI is an assistant, not a replacement for engineering. It can save time, automate repetitive work, accelerate research, generate boilerplate, and help catch mistakes, but it does not remove the complexity of the work itself.
 
