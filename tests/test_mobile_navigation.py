@@ -38,6 +38,7 @@ def test_mobile_menu_closes_outside_without_blocking_the_clicked_control(
         activate(page.get_by_role("button", name="Toggle color theme", exact=True))
         expect(sidebar).to_be_hidden()
         expect(page.locator("html")).to_have_attribute("data-theme", "light")
+        expect(page.locator("html")).to_have_attribute("data-theme-preference", "light")
         activate(toggle)
         content = page.locator(".page-content")
         position: Position = {"x": bounds(content)["width"] - 8, "y": 12}

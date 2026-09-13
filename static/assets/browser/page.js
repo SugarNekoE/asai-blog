@@ -9,7 +9,6 @@ export function readPage() {
     flags: {
       ...bootstrap,
       article: content.innerHTML,
-      theme: document.documentElement.dataset.theme,
       search: location.search,
       fragment: location.hash,
     },
@@ -28,6 +27,7 @@ export function mountInterface(program, page, posts) {
       flags: {
         ...page.flags,
         posts,
+        theme: document.documentElement.dataset.themePreference ?? 'auto',
         viewportWidth: window.innerWidth,
         clock: { now: clock.getTime(), offset: clock.getTimezoneOffset() },
       },
@@ -41,12 +41,7 @@ export function mountInterface(program, page, posts) {
 export function connectPage(app) {
   window.addEventListener('pageshow', () => app.ports.clockRefreshRequested.send(null));
   app.ports.setTheme.subscribe((theme) => {
-    document.documentElement.dataset.theme = theme;
-    try {
-      localStorage.setItem('asai-theme', theme);
-    } catch {
-      // Storage may be blocked; the selected theme still applies to this page.
-    }
+    window.AsaiTheme?.set(theme);
   });
   app.ports.replaceQuery.subscribe((query) => {
     history.replaceState(null, '', location.pathname + query + location.hash);

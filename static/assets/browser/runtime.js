@@ -5,7 +5,7 @@ import { connectDialogs } from './dialogs.js?v=elm-startup-1';
 import { connectFocus } from './focus.js';
 import { connectKeyboard } from './keyboard.js';
 import { connectLinkTargets } from './link-targets.js?v=elm-controls-1';
-import { readPage, mountInterface, connectPage } from './page.js?v=elm-controls-1';
+import { readPage, mountInterface, connectPage } from './page.js?v=theme-preference-1';
 
 export function start(Elm) {
   const loading = window.AsaiLoading;

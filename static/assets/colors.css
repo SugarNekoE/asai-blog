@@ -53,6 +53,7 @@
 
 :root[data-theme='light'] {
   color-scheme: light;
+  color-scheme: light;
 
   --monokai-pro-red: #b5355b;
   --monokai-pro-orange: #a14c22;

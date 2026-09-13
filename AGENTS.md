@@ -58,6 +58,8 @@ responsive, and fallback behavior covered by `tests/`. In particular:
 
 - Keep the mobile menu attached to the sticky header, with a subtle shadow and
   independent scrolling. Outside clicks/taps close it without blocking the clicked control.
+- Default to the system theme. The icon and `t` cycle Auto, Light, and Dark;
+  save the preference, and follow system changes only in Auto mode.
 - Tags combine with AND; category/search context survives clearing tags. Keep URL
   state and pagination (10/30/50/100), resetting the page when results or order change.
 - Search and keymap dialogs are exclusive and contain focus on controls. Preserve

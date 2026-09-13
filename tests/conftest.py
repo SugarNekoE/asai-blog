@@ -56,6 +56,7 @@ def browser_context_args(
         **browser_context_args,
         "base_url": base_url,
         "viewport": {"width": 1280, "height": 720},
+        "color_scheme": "dark",
     }
 
 

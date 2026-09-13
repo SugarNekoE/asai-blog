@@ -13,6 +13,7 @@ import Styles.Immersive as ImmersiveStyles
 import Styles.Outline as OutlineStyles
 import Styles.Shell as ShellStyles
 import Styles.Sidebar as SidebarStyles
+import ThemePreference
 import Url
 
 
@@ -29,7 +30,7 @@ type alias State a =
         , page : String
         , menu : Bool
         , clock : Clock
-        , theme : String
+        , theme : ThemePreference.Preference
         , immersive : Bool
         , headings : List Heading
         , outlineVisible : Bool
@@ -110,16 +111,11 @@ view actions model content panels =
                         , css [ HeaderStyles.iconButton ]
                         , onClick actions.toggleTheme
                         , attribute "aria-label" "Toggle color theme"
-                        , title "Toggle color theme"
+                        , attribute "aria-description" (ThemePreference.description model.theme)
+                        , title (ThemePreference.description model.theme)
+                        , attribute "data-theme-preference" (ThemePreference.toString model.theme)
                         ]
-                        [ text
-                            (if model.theme == "dark" then
-                                "☼"
-
-                             else
-                                "◐"
-                            )
-                        ]
+                        [ text (ThemePreference.icon model.theme) ]
                     ]
                 ]
             , if model.immersive then

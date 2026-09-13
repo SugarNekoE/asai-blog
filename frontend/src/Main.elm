@@ -23,6 +23,7 @@ import SearchLauncher
 import Set
 import Styles.Responsive as Responsive
 import Task
+import ThemePreference
 import Url
 
 
@@ -47,7 +48,7 @@ type alias Model =
     , article : String
     , page : String
     , category : String
-    , theme : String
+    , theme : ThemePreference.Preference
     , selectedTags : Set.Set String
     , query : String
     , extraQuery : List ( String, String )
@@ -162,7 +163,7 @@ init flags =
 
             else
                 flags.category
-      , theme = flags.theme
+      , theme = ThemePreference.fromString flags.theme
       , selectedTags = Set.fromList queryState.tags
       , query = queryState.query
       , extraQuery = queryState.extra
@@ -432,13 +433,9 @@ updateModel msg model =
         ToggleTheme ->
             let
                 theme =
-                    if model.theme == "dark" then
-                        "light"
-
-                    else
-                        "dark"
+                    ThemePreference.next model.theme
             in
-            ( { model | theme = theme }, setTheme theme )
+            ( { model | theme = theme }, setTheme (ThemePreference.toString theme) )
 
         ToggleMenu ->
             ( { model | menu = not model.menu }, Cmd.none )

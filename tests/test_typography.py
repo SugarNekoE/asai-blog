@@ -86,12 +86,13 @@ def test_bundled_noto_symbol_fonts_render_icons_in_aligned_containers(
     expect(page.locator(".workspace")).to_be_visible()
     page.evaluate(r"""async () => {
       await document.fonts.load('400 20px "Noto Sans Symbols"', '↗');
-      await document.fonts.load('400 20px "Noto Sans Symbols 2"', '◐☼');
+      await document.fonts.load('400 20px "Noto Sans Symbols 2"', '◐☼☾');
       await document.fonts.ready;
     }""")
     theme_button = page.get_by_role("button", name="Toggle color theme", exact=True)
-    for theme in ["dark", "light"]:
+    for preference, theme in [("auto", "dark"), ("light", "light"), ("dark", "dark")]:
         expect(page.locator("html")).to_have_attribute("data-theme", theme)
+        expect(theme_button).to_have_attribute("data-theme-preference", preference)
         fonts = platform_fonts(page, ".top-actions .icon-button")
         assert (
             any(
@@ -107,8 +108,10 @@ def test_bundled_noto_symbol_fonts_render_icons_in_aligned_containers(
             abs(clock["y"] + clock["height"] / 2 - button["y"] - button["height"] / 2)
             < 1
         )
-        page.screenshot(path=f"test-results/symbols-{theme}.png", animations="disabled")
-        if theme == "dark":
+        page.screenshot(
+            path=f"test-results/symbols-{preference}.png", animations="disabled"
+        )
+        if preference != "dark":
             theme_button.click()
     icon = bounds(page.locator(".search-launch .search-icon"))
     label = bounds(page.locator(".search-launch > span:not(.symbol)"))
