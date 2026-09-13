@@ -32,6 +32,7 @@ pnpm exec prettier "$prettier_mode" \
   '.prettierrc.json' \
   '*.{md,json,jsonc,yaml}' \
   '!pnpm-lock.yaml' \
+  '.forgejo/workflows/*.yaml' \
   '.zed/*.json' \
   'content/**/*.{md,json,svg}' \
   'frontend/elm.json' \

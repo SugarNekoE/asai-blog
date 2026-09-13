@@ -54,5 +54,11 @@ preview: build
     pnpm exec wrangler pages dev _site
 
 # Publish to the Cloudflare Pages project configured in wrangler.jsonc.
-deploy: check
-    pnpm exec wrangler pages deploy _site
+[positional-arguments]
+deploy *args: check
+    just deploy-built "$@"
+
+# Upload an existing build after checks have passed, as in the Forgejo workflow.
+[positional-arguments]
+deploy-built *args:
+    pnpm exec wrangler pages deploy _site "$@"

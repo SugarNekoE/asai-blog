@@ -1,0 +1,50 @@
+name: Deploy to Cloudflare Pages
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+concurrency:
+  group: cloudflare-pages-production
+  cancel-in-progress: false
+jobs:
+  deploy:
+    if: forgejo.ref == 'refs/heads/main'
+    runs-on: acs-nix
+    timeout-minutes: 60
+    env:
+      CI: 'true'
+      NIX_CONFIG: |
+        extra-experimental-features = nix-command flakes
+        sandbox = false
+      BOOTSTRAP_NIXPKGS: github:cachix/devenv-nixpkgs/256551e45f6303e142ab4a98be1bf243feb77dc0
+    steps:
+      - name: Bootstrap Node, Git, and devenv
+        shell: sh
+        run: |
+          set -eu
+          nix profile install --profile /tmp/asai-ci-bootstrap \
+            "$BOOTSTRAP_NIXPKGS#nodejs_24" \
+            "$BOOTSTRAP_NIXPKGS#gitMinimal" \
+            "$BOOTSTRAP_NIXPKGS#devenv"
+          echo /tmp/asai-ci-bootstrap/bin >> "$GITHUB_PATH"
+          /tmp/asai-ci-bootstrap/bin/node --version
+          /tmp/asai-ci-bootstrap/bin/devenv --version
+      - name: Check out the repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Install project dependencies
+        run: devenv shell pnpm install --frozen-lockfile
+      - name: Check and build the site
+        run: devenv shell just check
+      - name: Deploy the checked site
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          DEPLOY_COMMIT: ${{ forgejo.sha }}
+        run: |
+          devenv shell just deploy-built \
+            --project-name asai-blog \
+            --branch main \
+            --commit-hash "$DEPLOY_COMMIT"
