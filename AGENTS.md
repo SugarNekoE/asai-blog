@@ -1,119 +1,50 @@
-# Working on Asai Blog
+# Agent rules
 
-Asai Blog serves `sne.moe`. Obsidian Markdown goes through Hakyll/Pandoc into
-static HTML, JSON, and Atom; Elm adds the interactive UI. See
-[PROJECT_INDEX.md](PROJECT_INDEX.md) for setup, commands, and the source map.
+Setup and source map: [PROJECT_INDEX.md](PROJECT_INDEX.md).
 
-## Before changing anything
+## Development
 
-- Preserve the user's edits and staged files. Keep changes within the requested scope.
-- Follow the review and Git authorization rules below before staging or publishing.
+- Preserve user edits/staged files and stay in scope.
+- Use `just`, devenv, pnpm, and `pnpm exec`. Keep environment definitions/wrappers
+  in `devenv.nix`; no Makefile or separate Nix environment. Keep dependency locks
+  consistent; never reformat them.
+- Edit source only; leave generated output/caches and `static/assets/elm.js` untracked.
+- Hakyll/Pandoc owns Markdown; Elm owns UI state; JS adapters own native browser APIs.
+  Keep modules focused and update producers, decoders, flags, and tests together.
+- Use `Html.Styled`, elm-css, `Styles.Responsive.rules`, and Clay. Preserve Monokai
+  tokens/tag mappings in `colors.css` and bundled Noto fonts, stacks, and licenses.
+- Use configured formatters and strict Pyright/Ruff. Comment only on non-obvious
+  reasons. Let Obsidian format its settings; follow `.gitignore` for tracked vault files.
+- Publish only `status: published`. Categories come from the first posts subfolder;
+  reject published posts at the root and links to missing/unpublished notes.
+  Keep filenames unique, URLs stable, and rebuild cleanly. All attachments are public.
+- Preserve tested UI/fallback behavior. Only trusted repository HTML enters
+  `blog-content`. Wait for fonts/index/assets and drain the worker queue before Main;
+  retain timeout/late-response protection. Elm owns copy timers; clipboard writes
+  run immediately. Hide uninitialized controls and omit toolbars from Atom.
+- Current-section highlighting is text-only and must not steal focus. Keep local
+  `yyyy/mm/dd HH:mm` time; timings cover navigation start→load and Main init→first paint opportunity.
 
-## Implementation
+## Checks
 
-- Use `just` commands and devenv locally and in CI. Keep environment definitions
-  and runtime wrappers in `devenv.nix`; do not add a Makefile or separate Nix environment.
-- Use pnpm for JavaScript dependencies and `pnpm exec` for project tools. Keep
-  `package.json` and `pnpm-lock.yaml` consistent; CI uses `--frozen-lockfile`.
-- Edit source, not generated files: `_site/`, `_cache/`, `.build/`, `dist-newstyle/`,
-  `frontend/elm-stuff/`, and `static/assets/elm.js`. Leave outputs untracked.
-  Do not reformat lockfiles; retain intentional dependency updates.
-- Keep Markdown processing in Hakyll/Pandoc, interactive state in Elm, and native
-  browser operations in small JavaScript port adapters. Update producers, decoders,
-  startup flags, and tests together when contracts change.
-- Keep feature views independent of `Main`, using focused state and typed callbacks.
-  Use `Html.Styled`, typed elm-css, and `Styles.Responsive.rules` for interactive UI;
-  use Clay for static, article, loading, and print styles.
-- Keep palette and tag colors in `static/assets/colors.css` using named Monokai Pro
-  tokens and exact `data-tag` mappings. Preserve bundled Noto fonts, CJK coverage,
-  symbol fonts, and licenses; share font stacks through `fonts.css`.
-- Use configured formatters, including standard Elm spacing. Keep Python strictly
-  typed and validated with Pyright/Ruff; FontTools stubs belong in `typings/fontTools/`.
-  Comment on non-obvious reasons, not what the code does.
-- Track portable Obsidian settings, themes, and snippets allowed by `.gitignore`;
-  keep workspace state, caches, and installed plugin files local. Let Obsidian
-  manage formatting throughout `content/.obsidian/`.
+Use `just check` for build/compiler changes. For UI changes, rebuild, run relevant
+`just test-browser` cases, and inspect changed desktop/mobile layouts. `just test`
+runs everything. Keep tests in strict Python; JS snippets execute only in the browser.
+Documentation needs accuracy/formatting checks only. Run `git diff --check` and
+report changes, checks actually run, and blockers.
 
-## Content and rendering
+## Approval
 
-- Only `status: published` notes enter HTML, JSON, and Atom. Reject wiki links to
-  missing or unpublished notes. Everything in `content/attachments/` is public.
-- Each post's category comes from the first folder below `content/posts/`, including
-  nested posts. YAML cannot override it; published posts at the posts root must fail.
-- Keep filenames unique and public URLs stable. Rebuild cleanly so removed or
-  unpublished notes disappear from `_site/`.
-- Preserve readable static pages when JavaScript or the index fails. Only trusted,
-  repository-authored HTML may enter `blog-content`.
-- Startup waits for fonts, notes, and document assets. The Elm worker validates the
-  index; initialize `Main` after its queue drains. Late responses must not replace
-  a revealed fallback. Keep loading stages and timeout behavior.
-- Hakyll owns code toolbars/hosts; Elm owns copy state and timers. Native clipboard
-  writes run immediately on the port request. Hide uninitialized controls, ignore
-  stale reset timers, and omit toolbars from Atom.
+Human review is required. Never stage, commit, push, merge, cherry-pick, or rewrite
+history without explicit approval. Destructive actions outside the requested scope
+also require explicit approval.
+Completed work is not commit permission.
 
-## Preserve existing UI behavior
+After approval: split independent changes, review `git diff --cached`, and use
+`git commit -s` with `type(scope): subject` (lowercase imperative, no final period).
+Scopes: `hakyll`, `elm`, `styles`, `content`, `tests`, `tooling`, `pages`, `docs`, `agents`.
+Keep note, Obsidian, and code changes separate. Never add `Co-authored-by:`.
 
-Unless requested otherwise, preserve the keyboard, focus, modal, filtering,
-responsive, and fallback behavior covered by `tests/`. In particular:
-
-- Keep the mobile menu attached to the sticky header, with a subtle shadow and
-  independent scrolling. Outside clicks/taps close it without blocking the clicked control.
-- Default to the system theme. The icon and `t` cycle Auto, Light, and Dark;
-  save the preference, and follow system changes only in Auto mode.
-- Tags combine with AND; category/search context survives clearing tags. Keep URL
-  state and pagination (10/30/50/100), resetting the page when results or order change.
-- Search and keymap dialogs are exclusive and contain focus on controls. Preserve
-  search keyboard selection after pointer use, native Enter, hint precedence, and
-  separate pointer/Tab focus tracking. Shortcuts must respect text inputs.
-- Keep the outline on the right and reserve its desktop space. Index and article
-  content share width and gutters; only article Immersive Mode widens the layout.
-  It closes panels/hints and restores the outline preference on exit.
-  Default the outline to hidden when the side panel does not fit; `o` can open
-  a bounded, scrollable list above the article on smaller screens.
-- Print only content, with A4 margins and complete code, tables, and images.
-- Keep the local clock format `yyyy/mm/dd HH:mm`. Footer loading time ends at the
-  browser load event; render time covers main Elm initialization to its first paint
-  opportunity. Display timings as `loading 67ms / rendered 9ms`.
-
-## Validate and report
-
-- Run `just check` for build/compiler changes. For UI changes, rebuild and run
-  relevant `just test-browser` scenarios; inspect desktop/mobile layouts when changed.
-  `just test` runs the full suite. Documentation needs accuracy and formatting checks only.
-- Keep browser tests in Python with isolated contexts and a free-port server per
-  worker. JavaScript snippets are for browser execution only; invoke init functions.
-  Preserve request gates and failure artifacts. Use devenv's Chromium and Pages wrapper.
-- Avoid tests that merely repeat trivial edits. Run `git diff --check`, report what
-  changed and what passed, and identify remaining risks or blockers. Never claim
-  a check passed without running it.
-
-## Human Review and Git Authorization
-
-All changes must be reviewed by a human before delivery.
-
-- Never run `git add`, `git commit`, `git push`, `git merge`, `git cherry-pick`,
-  or a history-rewriting command on your own initiative. Preserve files the user
-  already staged, but do not stage new agent-authored changes without approval.
-- After editing, present the changed behavior, validation, risks, and unresolved
-  checklist items. A completed implementation is not permission to commit.
-- Never perform irreversible or destructive operations outside the requested
-  scope without explicit human confirmation.
-- Split independent changes into focused commits. Review `git diff --cached`
-  before committing; keep unrelated note, Obsidian setting, and code changes separate.
-
-After explicit approval, commits must be signed off and follow:
-`type(scope): subject`.
-
-- Use `git commit -s` so the `Signed-off-by:` trailer is present.
-- Use a lowercase imperative subject with no trailing period and a meaningful
-  scope: `hakyll`, `elm`, `styles`, `content`, `tests`, `tooling`, `pages`, `docs`,
-  or `agents`.
-- Never add a `Co-authored-by:` trailer.
-
-Examples: `feat(elm): add tag filters`, `docs(content): add a note on types`,
-`ci(pages): add forgejo deployment`.
-
-Commit approval does not authorize pushing or deployment. The Forgejo workflow
-deploys pushes to `main` and manual runs on `main` to Cloudflare Pages. Running
-`just deploy`, `just deploy-built`, Wrangler uploads, or changing production
-settings also requires explicit authorization.
+Push/deploy approval is separate. Forgejo deploys pushes/manual runs on `main`.
+`just deploy`, `just deploy-built`, Wrangler uploads, and production settings
+require explicit deployment approval.
