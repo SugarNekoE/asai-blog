@@ -24,10 +24,10 @@ status: published
 
 - OpenAI Codex
 - Claude Code
-- Pi
 - Qwen Code
 - Gemini CLI
 - Copilot CLI
+- Pi
 
 ---
 
@@ -49,13 +49,13 @@ Lightweight tools such as Pi allow the model to respond in a much more raw form,
 
 For specialized tasks, lightweight harnesses often struggle to compete with heavily engineered systems. Sometimes you can even notice that certain models appear to work significantly better inside the harnesses they were trained or optimized around.
 
-### Context management is still unsolved
+### Context management
 
 Once a long coding session reaches the context limit, most existing tools still do not have a truly satisfying way to compact the conversation while preserving all the important architectural decisions, constraints, mistakes, and reasoning accumulated during the session.
 
 Summaries help, but information is inevitably lost.
 
-### Full hand-off produces code for AI, not humans
+### Full hand-off produces code for AI
 
 Giving too much work to AI without intervention often produces code that technically works but becomes increasingly difficult for humans to understand.
 
