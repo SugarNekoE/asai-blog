@@ -34,16 +34,15 @@ article info body =
 index :: [PostInfo] -> H.Html
 index posts = do
   H.header ! A.class_ "intro" $ do
-    H.p ! A.class_ "eyebrow" $ "A PERSONAL KNOWLEDGE BASE"
     H.h1 $ do
-      "Thinking in "
-      H.em "systems."
-      H.br
-      "Writing in plain text."
-    H.p $ do
-      "Field notes on code, tools, and the things in between."
-      H.br
-      "A little less noise. A little more understanding."
+      "Keep it "
+      H.em "simple,"
+      " stupid."
+    H.p ! A.class_ "intro-quote" $ do
+      H.em "“Glory to mankind.”"
+      H.span ! A.class_ "quote-attribution" $ do
+        "--YoRHa, "
+        H.cite "NieR:Automata"
   H.h2 "Latest notes"
   H.div ! A.class_ "post-list" $
     forM_ posts $ \info ->

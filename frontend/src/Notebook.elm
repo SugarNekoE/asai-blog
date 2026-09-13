@@ -28,58 +28,23 @@ view actions model =
     in
     div []
         [ header [ class "intro", css [ IntroStyles.intro ] ]
-            [ p
-                [ class "eyebrow"
-                ]
-                [ span
-                    [ class "accent"
-                    ]
-                    [ text "~/"
-                    ]
-                , text " A PERSONAL KNOWLEDGE BASE"
-                ]
-            , h1
+            [ h1
                 []
-                [ text "Thinking in "
+                [ text "Keep it "
                 , em
                     []
-                    [ text "systems."
+                    [ text "simple,"
                     ]
-                , br
-                    []
-                    []
-                , text "Writing in plain text."
+                , text " stupid."
                 ]
             , p
-                [ class "intro-description"
-                , css [ IntroStyles.introDescription ]
+                [ class "intro-quote"
+                , css [ IntroStyles.introQuote ]
                 ]
-                [ text "Field notes on code, tools, and the things in between."
-                , br
-                    []
-                    []
-                , text "A little less noise. A little more understanding."
-                ]
-            , div
-                [ class "intro-meta"
-                , css [ IntroStyles.introMeta ]
-                ]
-                [ span
-                    []
-                    [ span
-                        [ class "dot"
-                        , css [ IntroStyles.dot ]
-                        ]
-                        []
-                    , text "learning in public"
-                    ]
-                , span
-                    []
-                    [ text "//"
-                    ]
-                , span
-                    []
-                    [ text (String.fromInt (List.length model.posts) ++ " notes and counting")
+                [ em [] [ text "“Glory to mankind.”" ]
+                , span [ css [ IntroStyles.quoteAttribution ] ]
+                    [ text "--YoRHa, "
+                    , Html.Styled.cite [] [ text "NieR:Automata" ]
                     ]
                 ]
             ]
@@ -89,18 +54,10 @@ view actions model =
             ]
             [ h2
                 [ id "notebook-heading", tabindex -1 ]
-                [ text "The notebook"
-                , span
-                    [ class "muted"
-                    ]
-                    [ text " /"
-                    ]
-                ]
+                [ text "The notebook" ]
             , span
-                [ class "eyebrow"
-                ]
-                [ text "IDEAS, COMMITTED."
-                ]
+                [ css [ IntroStyles.noteCount ] ]
+                [ text (String.fromInt (List.length model.posts) ++ " notes remaining") ]
             ]
         , div [ class "filterbar", css [ FiltersStyles.filterbar ] ]
             [ Filters.view actions model

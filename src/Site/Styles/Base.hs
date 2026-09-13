@@ -131,3 +131,20 @@ styles = do
     borderBottom (px 1) solid (token "border")
   ".fallback .intro" ? do
     padding (px 40) (unitless 0) (px 40) (unitless 0)
+  ".fallback .intro-quote" ? do
+    display flex
+    "flex-wrap" -: "wrap"
+    alignItems baseline
+    "gap" -: "4px 12px"
+    margin (unitless 0) (unitless 0) (unitless 0) (unitless 0)
+    color (token "muted")
+    fontSize (px 14)
+    lineHeight (unitless 1.9)
+  ".fallback .quote-attribution" ? do
+    "font" -: "11px var(--mono)"
+    whiteSpace nowrap
+  ".fallback .quote-attribution cite" ? do
+    fontStyle normal
+  query Media.all [Feature "max-width" (Just "760px")] $ do
+    ".fallback .intro-quote" ? do
+      fontSize (px 13)

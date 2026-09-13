@@ -1,4 +1,4 @@
-module Styles.Intro exposing (collectionHeader, dot, emptyState, intro, introDescription, introMeta, notebookEnd, resetButton, resultCount)
+module Styles.Intro exposing (collectionHeader, emptyState, intro, introQuote, noteCount, notebookEnd, quoteAttribution, resetButton, resultCount)
 
 import Css exposing (..)
 import Css.Global as Global
@@ -11,11 +11,6 @@ intro : Style
 intro =
     batch
         [ Global.descendants
-            [ Global.selector ".eyebrow"
-                [ marginBottom (px 24)
-                ]
-            ]
-        , Global.descendants
             [ Global.selector "h1"
                 [ property "font-size" "clamp(32px, 3.25vw, 48px)"
                 , lineHeight (num 1.28)
@@ -52,10 +47,15 @@ intro =
         ]
 
 
-introDescription : Style
-introDescription =
+introQuote : Style
+introQuote =
     batch
         [ Theme.color Theme.Muted
+        , displayFlex
+        , flexWrap wrap
+        , alignItems baseline
+        , property "gap" "4px 12px"
+        , margin (px 0)
         , fontSize (px 14)
         , lineHeight (num 1.9)
         , Responsive.rules
@@ -67,27 +67,23 @@ introDescription =
         ]
 
 
-introMeta : Style
-introMeta =
+quoteAttribution : Style
+quoteAttribution =
     batch
-        [ displayFlex
-        , alignItems center
-        , property "gap" "18px"
-        , Typography.monoNormal 10
-        , Theme.color Theme.Faint
-        , marginTop (px 28)
+        [ Typography.monoNormal 11
+        , whiteSpace noWrap
         , Global.descendants
-            [ Global.selector "span:first-child"
-                [ Theme.color Theme.Muted
-                ]
-            ]
-        , Responsive.rules
-            [ ( "(max-width: 760px)"
-              , [ fontSize (px 9)
-                , property "gap" "13px"
-                ]
-              )
-            ]
+            [ Global.selector "cite" [ fontStyle normal ] ]
+        ]
+
+
+noteCount : Style
+noteCount =
+    batch
+        [ Typography.monoNormal 10
+        , Theme.color Theme.Faint
+        , letterSpacing (px 0)
+        , whiteSpace noWrap
         ]
 
 
@@ -95,10 +91,12 @@ collectionHeader : Style
 collectionHeader =
     batch
         [ displayFlex
+        , flexWrap wrap
+        , property "gap" "12px"
         , justifyContent spaceBetween
-        , alignItems center
+        , alignItems baseline
         , marginTop (px 60)
-        , marginBottom (px 22)
+        , marginBottom (px 6)
         , Global.descendants
             [ Global.selector "h2"
                 [ fontSize (px 17)
@@ -107,38 +105,12 @@ collectionHeader =
                 , margin (px 0)
                 ]
             ]
-        , Global.descendants
-            [ Global.selector ".eyebrow"
-                [ fontSize (px 9)
-                , Theme.color Theme.Faint
-                ]
-            ]
         , Responsive.rules
             [ ( "(max-width: 760px)"
-              , [ marginTop (px 42)
-                ]
-              )
-            , ( "(max-width: 760px)"
-              , [ Global.descendants
-                    [ Global.selector ".eyebrow"
-                        [ fontSize (px 8)
-                        ]
-                    ]
+              , [ marginTop (px 48)
                 ]
               )
             ]
-        ]
-
-
-dot : Style
-dot =
-    batch
-        [ display inlineBlock
-        , width (px 5)
-        , height (px 5)
-        , borderRadius (pct 50)
-        , Theme.background Theme.Accent
-        , marginRight (px 8)
         ]
 
 
