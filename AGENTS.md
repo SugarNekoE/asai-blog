@@ -30,6 +30,9 @@ static HTML, JSON, and Atom; Elm adds the interactive UI. See
 - Use configured formatters, including standard Elm spacing. Keep Python strictly
   typed and validated with Pyright/Ruff; FontTools stubs belong in `typings/fontTools/`.
   Comment on non-obvious reasons, not what the code does.
+- Track portable Obsidian settings, themes, and snippets allowed by `.gitignore`;
+  keep workspace state, caches, and installed plugin files local. Let Obsidian
+  manage formatting throughout `content/.obsidian/`.
 
 ## Content and rendering
 

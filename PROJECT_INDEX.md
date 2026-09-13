@@ -26,8 +26,11 @@ Devenv supplies a UTF-8 locale on Linux so builds do not depend on container loc
 
 ## Write notes
 
-Open `content/` as an Obsidian vault. Enable the Templates core plugin and use
-`templates/Note.md`. Write in `posts/<category>/` with unique, stable filenames;
+Open `content/` as an Obsidian vault. Enable the Templates core plugin, set its
+folder to `templates`, and insert `Note`. Set the attachment folder to `attachments`.
+Portable Obsidian settings, themes, and snippets are tracked; workspace state,
+caches, and installed plugin files stay local. `.gitignore` lists the shared settings.
+Write in `posts/<category>/` with unique, stable filenames;
 the first folder determines the category. Change `status: draft` to
 `status: published` when ready for the website.
 
@@ -38,6 +41,7 @@ makes them accessible to anyone who can read the repository.
 ## Commands
 
 Run these inside `devenv shell`. See `just --list` for everything available.
+Formatting skips `content/.obsidian/`, which Obsidian manages itself; posts and templates are still checked.
 
 | Command                                           | Purpose                                              |
 | ------------------------------------------------- | ---------------------------------------------------- |

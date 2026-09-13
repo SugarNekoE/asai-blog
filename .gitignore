@@ -20,8 +20,19 @@ node_modules/
 test-results/
 .elm-home/
 .cabal-home/
-content/.obsidian/workspace*.json
-content/.obsidian/cache/
+# Share portable Obsidian preferences and styling, not device state or plugin data.
+content/.obsidian/*
+!content/.obsidian/app.json
+!content/.obsidian/appearance.json
+!content/.obsidian/community-plugins.json
+!content/.obsidian/core-plugins.json
+!content/.obsidian/daily-notes.json
+!content/.obsidian/graph.json
+!content/.obsidian/hotkeys.json
+!content/.obsidian/note-composer.json
+!content/.obsidian/templates.json
+!content/.obsidian/themes/
+!content/.obsidian/snippets/
 content/.trash/
 .wrangler/
 .ruff_cache/
