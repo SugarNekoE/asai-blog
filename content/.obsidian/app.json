@@ -3,5 +3,6 @@
   "newFileLocation": "folder",
   "newFileFolderPath": "posts/notes",
   "useMarkdownLinks": false,
-  "newLinkFormat": "shortest"
+  "newLinkFormat": "shortest",
+  "userIgnoreFilters": ["/^LICENSE$/"]
 }

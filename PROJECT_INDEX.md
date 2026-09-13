@@ -3,6 +3,9 @@
 A technical notebook for `sne.moe`: write in Obsidian, generate pages with
 Hakyll/Pandoc, browse with Elm, and host on Cloudflare Pages.
 
+Application code uses [AGPL-3.0](LICENSE). Original material under `content/`
+uses [CC BY-SA 4.0](content/LICENSE); third-party files retain their own licenses.
+
 ## Start locally
 
 From the repository root:
