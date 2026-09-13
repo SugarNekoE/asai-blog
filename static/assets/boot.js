@@ -1,3 +1,3 @@
-import { start } from './browser/runtime.js?v=theme-preference-1';
+import { start } from './browser/runtime.js';
 
 start(window.Elm);

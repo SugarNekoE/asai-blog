@@ -1,11 +1,11 @@
 import './content.js';
-import { pageLoaded, firstPaintOpportunity, observeAssets } from './assets.js?v=elm-startup-1';
-import { registerClipboard } from './clipboard.js?v=elm-controls-1';
-import { connectDialogs } from './dialogs.js?v=elm-startup-1';
+import { pageLoaded, firstPaintOpportunity, observeAssets } from './assets.js';
+import { registerClipboard } from './clipboard.js';
+import { connectDialogs } from './dialogs.js';
 import { connectFocus } from './focus.js';
 import { connectKeyboard } from './keyboard.js';
-import { connectLinkTargets } from './link-targets.js?v=elm-controls-1';
-import { readPage, mountInterface, connectPage } from './page.js?v=theme-preference-1';
+import { connectLinkTargets } from './link-targets.js';
+import { readPage, mountInterface, connectPage } from './page.js';
 
 export function start(Elm) {
   const loading = window.AsaiLoading;
