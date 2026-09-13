@@ -76,11 +76,9 @@
 }
 
 [data-tag='philosophy'] {
-  --tag-color: var(--monokai-pro-green)
+  --tag-color: var(--monokai-pro-green);
 }
 
-[data-tag='programming']
-[data-tag='skills']
-[data-tag='ai'] {
+[data-tag='programming'] [data-tag='skills'] [data-tag='ai'] {
   --tag-color: var(--monokai-pro-blue);
 }
