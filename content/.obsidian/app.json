@@ -4,7 +4,5 @@
   "newFileFolderPath": "posts/notes",
   "useMarkdownLinks": false,
   "newLinkFormat": "shortest",
-  "userIgnoreFilters": [
-    "/^LICENSE$/"
-  ]
+  "userIgnoreFilters": ["/^LICENSE$/"]
 }
