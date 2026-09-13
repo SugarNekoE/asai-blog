@@ -8,7 +8,7 @@ from tests.helpers import bounds
 def test_shift_i_widens_the_article_hides_surrounding_panels_and_restores_them(
     page: Page,
 ) -> None:
-    page.set_viewport_size({"width": 1440, "height": 900})
+    page.set_viewport_size({"width": 1920, "height": 900})
     page.goto("/posts/plain-text-to-a-small-web/")
     expect(page.locator(".workspace")).to_be_visible()
     normal_width = bounds(page.locator(".prose"))["width"]
@@ -129,6 +129,7 @@ def test_immersive_toggling_closes_existing_panels_and_hints_while_explicit_sear
 def test_immersive_mode_preserves_the_note_outline_and_stays_disabled_on_filtered_indexes(
     page: Page,
 ) -> None:
+    page.set_viewport_size({"width": 1920, "height": 900})
     page.goto("/posts/plain-text-to-a-small-web/")
     expect(page.locator(".workspace")).to_be_visible()
     page.keyboard.press("o")

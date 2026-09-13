@@ -128,7 +128,7 @@ mainContent =
         , property "gap" "48px"
         , Responsive.rules
             [ ( "(min-width: 1500px)", [ paddingTop (px 80) ] )
-            , ( "(max-width: 1599px)"
+            , ( Responsive.outlineNarrow
               , [ property "grid-template-columns" "minmax(0, 1fr)"
                 , maxWidth (px (contentWidth + 2 * gutter))
                 , property "gap" "32px"
@@ -151,7 +151,7 @@ pageContent =
         , Global.descendants
             [ Global.selector ".prose" [ maxWidth none ] ]
         , Responsive.rules
-            [ ( "(max-width: 1599px)", [ property "grid-column" "1" ] ) ]
+            [ ( Responsive.outlineNarrow, [ property "grid-column" "1" ] ) ]
         ]
 
 

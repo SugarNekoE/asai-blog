@@ -28,6 +28,7 @@ export function mountInterface(program, page, posts) {
       flags: {
         ...page.flags,
         posts,
+        viewportWidth: window.innerWidth,
         clock: { now: clock.getTime(), offset: clock.getTimezoneOffset() },
       },
     });

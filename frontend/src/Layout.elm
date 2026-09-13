@@ -340,7 +340,7 @@ pageOutline headings =
         , attribute "aria-labelledby" "page-outline-title"
         ]
         [ h2 [ id "page-outline-title" ] [ text "ON THIS PAGE" ]
-        , nav [ attribute "aria-label" "Table of contents" ]
+        , nav [ attribute "aria-label" "Table of contents", css [ OutlineStyles.links ] ]
             (List.map
                 (\heading ->
                     a [ href ("#" ++ heading.id) ] [ text heading.label ]

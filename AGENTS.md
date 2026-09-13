@@ -64,6 +64,8 @@ responsive, and fallback behavior covered by `tests/`. In particular:
 - Keep the outline on the right and reserve its desktop space. Index and article
   content share width and gutters; only article Immersive Mode widens the layout.
   It closes panels/hints and restores the outline preference on exit.
+  Default the outline to hidden when the side panel does not fit; `o` can open
+  a bounded, scrollable list above the article on smaller screens.
 - Print only content, with A4 margins and complete code, tables, and images.
 - Keep the local clock format `yyyy/mm/dd HH:mm`. Footer loading time ends at the
   browser load event; render time covers main Elm initialization to its first paint

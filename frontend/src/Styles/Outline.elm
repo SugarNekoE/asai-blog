@@ -1,4 +1,4 @@
-module Styles.Outline exposing (pageOutline)
+module Styles.Outline exposing (links, pageOutline)
 
 import Css exposing (..)
 import Css.Global as Global
@@ -15,15 +15,17 @@ pageOutline =
         , maxWidth (px 200)
         , top (px 32)
         , alignSelf start
+        , displayFlex
+        , flexDirection column
         , property "max-height" "calc(100vh - 64px)"
-        , overflowY auto
-        , property "overscroll-behavior" "contain"
+        , overflow hidden
         , padding4 (px 4) (px 0) (px 4) (px 20)
         , property "border-left" "1px solid var(--border)"
         , property "background" "transparent"
         , Global.descendants
             [ Global.selector "h2"
                 [ margin3 (px 0) (px 0) (px 14)
+                , flexShrink (num 0)
                 , Theme.color Theme.Muted
                 , property "font" "600 11px/1.6 var(--mono)"
                 , letterSpacing (px 1.4)
@@ -44,15 +46,25 @@ pageOutline =
                 ]
             ]
         , Responsive.rules
-            [ ( "(max-width: 1599px)"
+            [ ( Responsive.outlineNarrow
               , [ position static
                 , property "grid-column" "1"
                 , order (int -1)
                 , width (pct 100)
                 , maxWidth (px 730)
-                , maxHeight none
+                , property "max-height" "min(28vh, 200px)"
                 , margin2 (px 0) auto
                 ]
               )
             ]
+        ]
+
+
+links : Style
+links =
+    batch
+        [ minHeight (px 0)
+        , overflowY auto
+        , property "overscroll-behavior" "contain"
+        , property "scrollbar-gutter" "stable"
         ]

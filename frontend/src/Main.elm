@@ -21,6 +21,7 @@ import Panels
 import Post exposing (Heading, Post)
 import SearchLauncher
 import Set
+import Styles.Responsive as Responsive
 import Task
 import Url
 
@@ -35,6 +36,7 @@ type alias Flags =
     , search : String
     , headings : List Heading
     , fragment : String
+    , viewportWidth : Int
     }
 
 
@@ -59,6 +61,7 @@ type alias Model =
     , launcherQuery : String
     , launcherSelection : Int
     , outlineVisible : Bool
+    , outlineAutomatic : Bool
     , immersive : Bool
     , selectedNote : Maybe String
     , hintsActive : Bool
@@ -74,6 +77,7 @@ type Msg
     | ClockTick Clock
     | RefreshClock
     | VisibilityChanged Browser.Events.Visibility
+    | ViewportResized Int
     | BrowserReady
     | KeyboardPressed String
     | TimingsChanged PageTimings
@@ -117,6 +121,7 @@ main =
                     , linkHintsReady HintsReady
                     , linkTargetsCollected HintsCollected
                     , Browser.Events.onVisibilityChange VisibilityChanged
+                    , Browser.Events.onResize (\width _ -> ViewportResized width)
                     , if model.hintsActive then
                         Sub.batch
                             [ linkTargetsChanged (always (HintKey "Escape"))
@@ -164,7 +169,8 @@ init flags =
       , tagPickerOpen = False
       , launcherQuery = ""
       , launcherSelection = 0
-      , outlineVisible = True
+      , outlineVisible = flags.viewportWidth >= Responsive.outlineBreakpoint
+      , outlineAutomatic = True
       , immersive = False
       , selectedNote = Nothing
       , hintsActive = False
@@ -207,6 +213,13 @@ update msg model =
 updateModel : Msg -> Model -> ( Model, Cmd Msg )
 updateModel msg model =
     case msg of
+        ViewportResized width ->
+            if model.outlineAutomatic then
+                ( { model | outlineVisible = width >= Responsive.outlineBreakpoint }, Cmd.none )
+
+            else
+                ( model, Cmd.none )
+
         BrowserReady ->
             let
                 ( ready, command ) =
@@ -266,7 +279,7 @@ updateModel msg model =
 
                 "outline" ->
                     if model.page == "post" && not model.immersive && not (List.isEmpty model.headings) then
-                        ( { model | outlineVisible = not model.outlineVisible }, Cmd.none )
+                        ( { model | outlineVisible = not model.outlineVisible, outlineAutomatic = False }, Cmd.none )
 
                     else
                         ( model, Cmd.none )

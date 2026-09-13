@@ -394,6 +394,7 @@ def test_index_category_buttons_are_hint_targets_and_preserve_tag_filters(
 def test_t_toggles_theme_and_o_hides_and_restores_the_reading_outline(
     page: Page,
 ) -> None:
+    page.set_viewport_size({"width": 1920, "height": 900})
     page.goto("/posts/plain-text-to-a-small-web/")
     expect(page.locator(".workspace")).to_be_visible()
     page.keyboard.press("t")

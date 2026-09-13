@@ -30,6 +30,10 @@ def test_index_and_notes_share_content_width_and_alignment_with_or_without_an_ou
         index = bounds(page.locator(".page-content"))
         intro = bounds(page.locator(".intro"))
         page.goto("/posts/plain-text-to-a-small-web/")
+        expect(page.locator(".workspace")).to_be_visible()
+        if width < 1600:
+            expect(page.locator(".page-outline")).to_have_count(0)
+            page.keyboard.press("o")
         expect(page.locator(".page-outline")).to_be_visible()
         article = bounds(page.locator(".prose"))
         back = bounds(page.locator(".prose > .back"))
@@ -335,9 +339,12 @@ def test_article_outline_is_transparent_stays_on_the_right_and_adapts_to_narrow_
     expect(outline).to_be_in_viewport()
     assert bounds(outline)["y"] >= 0
     assert bounds(outline)["y"] <= 33
-    for width in [768, 390]:
+    for width in [1440, 1366, 1024, 768, 390]:
         page.set_viewport_size({"width": width, "height": 900})
         page.goto("/posts/plain-text-to-a-small-web/")
+        expect(page.locator(".workspace")).to_be_visible()
+        expect(outline).to_have_count(0)
+        page.keyboard.press("o")
         expect(outline).to_be_visible()
         expect(outline).to_have_css("position", "static")
         narrow_panel = bounds(outline)
