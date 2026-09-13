@@ -23,12 +23,12 @@ from tests.helpers import (
 def test_index_and_notes_share_content_width_and_alignment_with_or_without_an_outline(
     page: Page,
 ) -> None:
-    for width in [1920, 1440, 1280, 1100, 768, 390]:
+    for width in [1920, 1600, 1599, 1440, 1280, 1100, 768, 390]:
         page.set_viewport_size({"width": width, "height": 1000})
         page.goto("/")
         expect(page.locator(".workspace")).to_be_visible()
         index = bounds(page.locator(".page-content"))
-        intro = bounds(page.locator(".intro .eyebrow"))
+        intro = bounds(page.locator(".intro"))
         page.goto("/posts/plain-text-to-a-small-web/")
         expect(page.locator(".page-outline")).to_be_visible()
         article = bounds(page.locator(".prose"))
@@ -36,7 +36,7 @@ def test_index_and_notes_share_content_width_and_alignment_with_or_without_an_ou
         assert abs(index["x"] - article["x"]) < 1
         assert abs(index["width"] - article["width"]) < 1
         assert abs(intro["x"] - back["x"]) < 1
-        if width >= 1200:
+        if width >= 1600:
             assert abs(intro["y"] - back["y"]) < 1
         page.keyboard.press("o")
         expect(page.locator(".page-outline")).to_have_count(0)
@@ -49,6 +49,36 @@ def test_index_and_notes_share_content_width_and_alignment_with_or_without_an_ou
             page.evaluate("() => document.documentElement.scrollWidth <= innerWidth")
             is True
         )
+
+
+def test_notebook_heading_quote_and_controls_share_left_edge(page: Page) -> None:
+    for width in [320, 390, 768, 1440, 1599, 1600, 1920]:
+        page.set_viewport_size({"width": width, "height": 1000})
+        page.goto("/")
+        expect(page.locator(".workspace")).to_be_visible()
+        content = bounds(page.locator(".page-content"))
+        editor = bounds(page.locator(".editor"))
+        assert (
+            abs(content["x"] + content["width"] / 2 - editor["x"] - editor["width"] / 2)
+            < 1
+        )
+        for selector in [
+            ".intro",
+            ".intro h1",
+            ".intro-quote",
+            "#notebook-heading",
+            ".filterbar",
+            ".search-field",
+            ".result-count",
+        ]:
+            section = page.locator(selector)
+            assert abs(bounds(section)["x"] - content["x"]) < 1, selector
+            expect(section).to_have_css("position", "static")
+        assert (
+            page.evaluate("() => document.documentElement.scrollWidth <= innerWidth")
+            is True
+        )
+        page.screenshot(path=f"test-results/notebook-alignment-{width}.png")
 
 
 def test_tag_picker_dismisses_outside_clicks_and_taps_while_preserving_checkbox_changes(
@@ -286,7 +316,7 @@ def test_direct_post_urls_display_their_folder_category_and_index_filters_accept
 def test_article_outline_is_transparent_stays_on_the_right_and_adapts_to_narrow_screens(
     page: Page,
 ) -> None:
-    page.set_viewport_size({"width": 1440, "height": 900})
+    page.set_viewport_size({"width": 1920, "height": 900})
     page.goto("/posts/plain-text-to-a-small-web/")
     outline = page.locator(".main-content > .page-outline")
     expect(outline).to_be_visible()

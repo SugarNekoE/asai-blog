@@ -123,12 +123,12 @@ mainContent =
         , margin2 (px 0) auto
         , property "flex" "1"
         , property "display" "grid"
-        , property "grid-template-columns" "minmax(0, 1fr) 200px"
+        , property "grid-template-columns" "minmax(0, 1fr) minmax(0, 730px) minmax(0, 1fr)"
         , alignItems start
         , property "gap" "48px"
         , Responsive.rules
             [ ( "(min-width: 1500px)", [ paddingTop (px 80) ] )
-            , ( "(max-width: 1199px)"
+            , ( "(max-width: 1599px)"
               , [ property "grid-template-columns" "minmax(0, 1fr)"
                 , maxWidth (px (contentWidth + 2 * gutter))
                 , property "gap" "32px"
@@ -144,11 +144,14 @@ pageContent : Style
 pageContent =
     batch
         [ minWidth (px 0)
+        , property "grid-column" "2"
         , width (pct 100)
         , maxWidth (px contentWidth)
         , margin2 (px 0) auto
         , Global.descendants
             [ Global.selector ".prose" [ maxWidth none ] ]
+        , Responsive.rules
+            [ ( "(max-width: 1599px)", [ property "grid-column" "1" ] ) ]
         ]
 
 

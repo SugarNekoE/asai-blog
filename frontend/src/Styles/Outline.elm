@@ -11,6 +11,8 @@ pageOutline : Style
 pageOutline =
     batch
         [ position sticky
+        , property "grid-column" "3"
+        , maxWidth (px 200)
         , top (px 32)
         , alignSelf start
         , property "max-height" "calc(100vh - 64px)"
@@ -42,8 +44,9 @@ pageOutline =
                 ]
             ]
         , Responsive.rules
-            [ ( "(max-width: 1199px)"
+            [ ( "(max-width: 1599px)"
               , [ position static
+                , property "grid-column" "1"
                 , order (int -1)
                 , width (pct 100)
                 , maxWidth (px 730)
