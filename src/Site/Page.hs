@@ -18,7 +18,7 @@ data Metadata = Metadata
   }
 
 index :: Metadata
-index = Metadata "Field notes" "Notes on functional programming, small systems, and a quieter web." "index" "" "All Notes"
+index = Metadata "Asai Blog" "Asai's FP designed SSG blog page" "index" "" "All Notes"
 
 notFound :: Metadata
 notFound = Metadata "Page not found" "This path is unexplored." "404" "" "Page not found"
@@ -33,7 +33,7 @@ render metadata headings content = renderHtml $
       H.meta ! A.charset "utf-8"
       H.meta ! A.name "viewport" ! A.content "width=device-width, initial-scale=1"
       H.meta ! A.name "color-scheme" ! A.content "dark light"
-      H.title $ H.toHtml $ title metadata ++ " · Asai Blog"
+      H.title $ H.toHtml $ if kind metadata == "index" then title metadata else title metadata ++ " · Asai Blog"
       H.meta ! A.name "description" ! A.content (H.toValue $ description metadata)
       H.link ! A.rel "icon" ! A.href "/assets/favicon.svg" ! A.type_ "image/svg+xml"
       H.link ! A.rel "alternate" ! A.type_ "application/atom+xml" ! A.title "Asai Blog" ! A.href "/feed.xml"

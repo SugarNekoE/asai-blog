@@ -197,8 +197,8 @@ feedConfig :: FeedConfiguration
 feedConfig =
   FeedConfiguration
     { feedTitle = "Asai Blog",
-      feedDescription = "Notes on functional programming, small systems, and a quieter web.",
+      feedDescription = "Asai's FP designed SSG blog page",
       feedAuthorName = "asai",
-      feedAuthorEmail = "",
+      feedAuthorEmail = "sugar@sne.moe",
       feedRoot = "https://sne.moe"
     }
