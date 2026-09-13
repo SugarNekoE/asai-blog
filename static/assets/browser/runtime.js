@@ -3,6 +3,7 @@ import { pageLoaded, firstPaintOpportunity, observeAssets } from './assets.js';
 import { registerClipboard } from './clipboard.js';
 import { connectDialogs } from './dialogs.js';
 import { connectFocus } from './focus.js';
+import { connectReading } from './reading.js';
 import { connectKeyboard } from './keyboard.js';
 import { connectLinkTargets } from './link-targets.js';
 import { readPage, mountInterface, connectPage } from './page.js';
@@ -19,6 +20,7 @@ export function start(Elm) {
     const app = mountInterface(Elm.Main, page, posts);
     connectPage(app);
     connectFocus(app);
+    connectReading(app);
     connectDialogs(app);
     connectLinkTargets(app);
     const keyboardReady = connectKeyboard(app);

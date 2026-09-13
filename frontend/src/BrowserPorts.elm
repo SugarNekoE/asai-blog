@@ -1,9 +1,10 @@
-port module BrowserPorts exposing (browserReady, clearFocus, clearLinkHints, clockRefreshRequested, collectLinkHints, followLinkHint, keyboardPressed, linkHintsReady, linkTargetsChanged, linkTargetsCollected, positionPage, probeLinkTargets, replaceQuery, setKeyboardKeys, setPanel, setTheme, timingsChanged)
+port module BrowserPorts exposing (browserReady, clearFocus, clearLinkHints, clockRefreshRequested, collectLinkHints, followLinkHint, keyboardPressed, linkHintsReady, linkTargetsChanged, linkTargetsCollected, observeReading, positionPage, probeLinkTargets, readingPositionChanged, refreshReading, replaceQuery, revealCurrentHeading, setKeyboardKeys, setPanel, setTheme, timingsChanged)
 
 import Keyboard
 import Layout exposing (PageTimings)
 import LinkHints.Targets exposing (Activation, Candidate, Probe, Snapshot)
 import Panels
+import ReadingPosition
 
 
 port setTheme : String -> Cmd msg
@@ -55,3 +56,15 @@ port probeLinkTargets : List Candidate -> Cmd msg
 
 
 port linkTargetsChanged : (() -> msg) -> Sub msg
+
+
+port observeReading : List String -> Cmd msg
+
+
+port readingPositionChanged : (ReadingPosition.Snapshot -> msg) -> Sub msg
+
+
+port refreshReading : () -> Cmd msg
+
+
+port revealCurrentHeading : () -> Cmd msg

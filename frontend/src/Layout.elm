@@ -34,6 +34,7 @@ type alias State a =
         , immersive : Bool
         , headings : List Heading
         , outlineVisible : Bool
+        , activeHeading : Maybe String
         , timings : Maybe PageTimings
     }
 
@@ -134,7 +135,7 @@ view actions model content panels =
                 ]
                 [ div [ class "page-content", css [ ShellStyles.pageContent ] ] [ content ]
                 , if model.page == "post" && not model.immersive && model.outlineVisible && not (List.isEmpty model.headings) then
-                    pageOutline model.headings
+                    pageOutline model.activeHeading model.headings
 
                   else
                     text ""
@@ -329,8 +330,8 @@ sidebar actions model =
         ]
 
 
-pageOutline : List Heading -> Html msg
-pageOutline headings =
+pageOutline : Maybe String -> List Heading -> Html msg
+pageOutline activeHeading headings =
     aside
         [ class "page-outline"
         , css [ OutlineStyles.pageOutline ]
@@ -340,7 +341,17 @@ pageOutline headings =
         , nav [ attribute "aria-label" "Table of contents", css [ OutlineStyles.links ] ]
             (List.map
                 (\heading ->
-                    a [ href ("#" ++ heading.id) ] [ text heading.label ]
+                    a
+                        [ href ("#" ++ heading.id)
+                        , attribute "aria-current"
+                            (if activeHeading == Just heading.id then
+                                "location"
+
+                             else
+                                "false"
+                            )
+                        ]
+                        [ text heading.label ]
                 )
                 headings
             )

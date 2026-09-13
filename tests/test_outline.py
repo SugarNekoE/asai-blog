@@ -86,6 +86,7 @@ def test_small_screen_outline_opens_above_article_and_scrolls_its_links(
               const link = nav.querySelector('a');
               for (let i = 0; i < 30; i++) {
                 const extra = link.cloneNode(true);
+                extra.removeAttribute('aria-current');
                 extra.textContent = `Additional section ${i + 1}`;
                 nav.append(extra);
               }
@@ -114,3 +115,103 @@ def test_small_screen_outline_opens_above_article_and_scrolls_its_links(
         expect(last).to_be_in_viewport()
         last.press("Enter")
         expect(page.locator(target)).to_be_in_viewport()
+
+
+def test_outline_highlight_tracks_scrolling_links_and_reload_without_changing_focus(
+    page: Page,
+) -> None:
+    page.set_viewport_size({"width": 1920, "height": 900})
+    page.emulate_media(reduced_motion="reduce")
+    open_article(page)
+    outline = page.locator(".page-outline")
+    links = outline.get_by_role("link")
+    targets = [link.get_attribute("href") for link in links.all()]
+    assert len(targets) >= 3
+    first, middle, last = targets[0], targets[len(targets) // 2], targets[-1]
+    assert first is not None and middle is not None and last is not None
+    current = outline.locator('[aria-current="location"]')
+    expect(current).to_have_count(1)
+    expect(current).to_have_attribute("href", first)
+    focus = page.get_by_role("button", name="Toggle color theme", exact=True)
+    focus.focus()
+    page.evaluate(
+        "id => document.getElementById(id).scrollIntoView({block: 'start', behavior: 'instant'})",
+        middle[1:],
+    )
+    expect(current).to_have_attribute("href", middle)
+    expect(focus).to_be_focused()
+    inactive_color = links.first.evaluate("node => getComputedStyle(node).color")
+    expect(current).not_to_have_css("color", inactive_color)
+    expect(current).to_have_css("background-color", "rgba(0, 0, 0, 0)")
+    expect(current).to_have_css("box-shadow", "none")
+    links.last.click()
+    expect(current).to_have_attribute("href", last)
+    page.reload()
+    expect(current).to_have_attribute("href", last)
+    page.evaluate("() => window.scrollTo({top: 0, behavior: 'instant'})")
+    expect(current).to_have_attribute("href", first)
+    expect(current).to_have_count(1)
+    page.mouse.move(0, 0)
+    page.screenshot(path="test-results/outline-current-desktop.png")
+
+
+def test_current_outline_link_stays_visible_in_its_scroll_area_without_scrolling_article(
+    page: Page,
+) -> None:
+    page.set_viewport_size({"width": 1920, "height": 480})
+    page.emulate_media(reduced_motion="reduce")
+    open_article(page)
+    outline = page.locator(".page-outline")
+    links = outline.get_by_role("navigation", name="Table of contents")
+    target = links.locator("a").last.get_attribute("href")
+    assert target is not None
+    position = page.evaluate(
+        """() => {
+          window.scrollTo({top: document.documentElement.scrollHeight, behavior: 'instant'});
+          return window.scrollY;
+        }"""
+    )
+    current = links.locator('[aria-current="location"]')
+    expect(current).to_have_attribute("href", target)
+    expect(current).to_be_in_viewport()
+    assert links.evaluate("nav => nav.scrollTop > 0") is True
+    assert page.evaluate("() => window.scrollY") == position
+    page.screenshot(path="test-results/outline-current-scroll.png")
+
+
+def test_outline_highlight_updates_while_hidden_and_in_the_mobile_outline(
+    page: Page,
+) -> None:
+    for width in [1920, 390]:
+        page.set_viewport_size({"width": width, "height": 900})
+        page.emulate_media(reduced_motion="reduce")
+        open_article(page)
+        outline = page.locator(".page-outline")
+        if width < 1600:
+            page.keyboard.press("o")
+        expect(outline).to_be_visible()
+        targets = outline.get_by_role("link")
+        target = targets.nth(targets.count() // 2).get_attribute("href")
+        assert target is not None
+        page.keyboard.press("o")
+        expect(outline).to_have_count(0)
+        page.evaluate(
+            "id => document.getElementById(id).scrollIntoView({block: 'start', behavior: 'instant'})",
+            target[1:],
+        )
+        page.keyboard.press("o")
+        expect(outline).to_be_visible()
+        page.evaluate(
+            "id => document.getElementById(id).scrollIntoView({block: 'start', behavior: 'instant'})",
+            target[1:],
+        )
+        expect(outline.locator('[aria-current="location"]')).to_have_attribute(
+            "href", target
+        )
+        expect(outline.locator('[aria-current="location"]')).to_have_count(1)
+        if width < 1600:
+            page.evaluate("() => window.scrollTo({top: 0, behavior: 'instant'})")
+            expect(outline.locator('[aria-current="location"]')).to_have_attribute(
+                "href", targets.first.get_attribute("href") or ""
+            )
+            page.screenshot(path="test-results/outline-current-mobile.png")

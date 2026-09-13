@@ -7,6 +7,7 @@ import BrowserClock as Clock exposing (Clock)
 import BrowserPorts exposing (..)
 import Html.Styled as Html exposing (Html, node, text)
 import Html.Styled.Attributes exposing (property)
+import Html.Styled.Lazy as Lazy
 import IndexQuery
 import Json.Encode as E
 import Keyboard
@@ -19,6 +20,7 @@ import Notebook.Query as NotebookQuery
 import OutsideClick
 import Panels
 import Post exposing (Heading, Post)
+import ReadingPosition
 import SearchLauncher
 import Set
 import Styles.Responsive as Responsive
@@ -69,6 +71,7 @@ type alias Model =
     , hints : List Hint
     , hintPrefix : String
     , initialAnchor : String
+    , activeHeading : Maybe String
     }
 
 
@@ -105,6 +108,7 @@ type Msg
     | HintsCollected Targets.Snapshot
     | HintsReady (List Targets.Probe)
     | HintKey String
+    | ReadingChanged ReadingPosition.Snapshot
 
 
 main : Program Flags Model Msg
@@ -112,7 +116,7 @@ main =
     Browser.element
         { init = init
         , update = update
-        , view = view >> Html.toUnstyled
+        , view = Lazy.lazy view >> Html.toUnstyled
         , subscriptions =
             \model ->
                 Sub.batch
@@ -122,6 +126,7 @@ main =
                     , keyboardPressed KeyboardPressed
                     , linkHintsReady HintsReady
                     , linkTargetsCollected HintsCollected
+                    , readingPositionChanged ReadingChanged
                     , Browser.Events.onVisibilityChange VisibilityChanged
                     , Browser.Events.onResize (\width _ -> ViewportResized width)
                     , if model.hintsActive then
@@ -184,6 +189,7 @@ init flags =
       , hints = []
       , hintPrefix = ""
       , initialAnchor = Url.percentDecode (String.dropLeft 1 flags.fragment) |> Maybe.withDefault ""
+      , activeHeading = Nothing
       }
     , Clock.nextTick ClockTick
     )
@@ -197,6 +203,9 @@ update msg model =
         ( next, command ) =
             updateModel msg model
 
+        readingLayoutChanged =
+            model.outlineVisible /= next.outlineVisible || model.immersive /= next.immersive
+
         sendKeys =
             case msg of
                 BrowserReady ->
@@ -208,6 +217,16 @@ update msg model =
     ( next
     , Cmd.batch
         [ command
+        , if readingLayoutChanged then
+            refreshReading ()
+
+          else
+            Cmd.none
+        , if (readingLayoutChanged || model.activeHeading /= next.activeHeading) && next.outlineVisible && not next.immersive then
+            revealCurrentHeading ()
+
+          else
+            Cmd.none
         , if sendKeys then
             setKeyboardKeys (Keyboard.keys next)
 
@@ -239,6 +258,11 @@ updateModel msg model =
             ( { ready | initialAnchor = "" }
             , Cmd.batch
                 [ command
+                , if model.page == "post" then
+                    observeReading (List.map .id model.headings)
+
+                  else
+                    Cmd.none
                 , if String.isEmpty model.initialAnchor then
                     Cmd.none
 
@@ -278,6 +302,19 @@ updateModel msg model =
 
                 Keyboard.None ->
                     ( model, Cmd.none )
+
+        ReadingChanged snapshot ->
+            let
+                active =
+                    ReadingPosition.current snapshot
+            in
+            ( if active == model.activeHeading then
+                model
+
+              else
+                { model | activeHeading = active }
+            , Cmd.none
+            )
 
         PageCommand command ->
             case command of

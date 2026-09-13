@@ -47,6 +47,11 @@ pageOutline =
                 [ Theme.color Theme.Accent
                 ]
             ]
+        , Global.descendants
+            [ Global.selector "nav a[aria-current='location']"
+                [ Theme.color Theme.Accent
+                ]
+            ]
         , Responsive.rules
             [ ( Responsive.outlineNarrow
               , [ position static
