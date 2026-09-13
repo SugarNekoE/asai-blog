@@ -61,18 +61,21 @@ such as `--branch main`.
 
 ## Where things live
 
-| Area                                       | Files                                                                                         |
-| ------------------------------------------ | --------------------------------------------------------------------------------------------- |
-| Notes and authoring                        | `content/posts/`, `content/attachments/`, `content/templates/`, `content/.obsidian/`          |
-| Build, routes, JSON, feed                  | `site.hs`                                                                                     |
-| Static views, Markdown, bootstrap metadata | `src/Site/`                                                                                   |
-| Static/article/loading/print styles        | `src/Site/Styles/` and `src/Site/Styles.hs`                                                   |
-| App, navigation, search, note lists        | `frontend/src/` (`Main`, `Layout`, `Notebook`, `SearchLauncher`, `Panels`)                    |
-| Startup, copy controls, keyboard, hints    | `frontend/src/Startup/`, `CodeBlock.elm`, `Keyboard.elm`, `LinkHints/`                        |
-| Interactive styles                         | `frontend/src/Styles/`                                                                        |
-| Browser adapters, palette, fonts           | `static/assets/`: `browser/`, `colors.css`, `fonts.css`, `noto.css`, `fonts/`                 |
-| Checks and browser tests                   | `scripts/`, `tests/`, `pyproject.toml`, `typings/`                                            |
-| Environment and deployment                 | `devenv.*`, `justfile`, `wrangler.jsonc`, `static/_headers`, `.forgejo/workflows/deploy.yaml` |
+| Area                                       | Files                                                                                                       |
+| ------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
+| Notes and authoring                        | `content/posts/`, `content/attachments/`, `content/templates/`, `content/.obsidian/`                        |
+| Build, routes, JSON, feed                  | `site.hs`                                                                                                   |
+| Static views, Markdown, bootstrap metadata | `src/Site/`                                                                                                 |
+| Static/article/loading/print styles        | `src/Site/Styles/` and `src/Site/Styles.hs`                                                                 |
+| App, navigation, search, note lists        | `frontend/src/` (`Main`, `Layout`, `Notebook`, `SearchLauncher`, `Panels`)                                  |
+| Startup, copy controls, keyboard, hints    | `frontend/src/Startup/`, `CodeBlock.elm`, `Keyboard.elm`, `LinkHints/`                                      |
+| Interactive styles                         | `frontend/src/Styles/`                                                                                      |
+| Content alignment and responsive outline   | `frontend/src/Styles/` (`Shell`, `Outline`, `Responsive`), `tests/test_outline.py`                          |
+| Mobile navigation and outside clicks       | `frontend/src/` (`Layout`, `OutsideClick`), `tests/test_mobile_navigation.py`                               |
+| Auto/light/dark theme preferences          | `frontend/src/ThemePreference.elm`, `static/assets/` (`theme.js`, `browser/page.js`), `tests/test_theme.py` |
+| Browser adapters, palette, fonts           | `static/assets/`: `browser/`, `colors.css`, `fonts.css`, `noto.css`, `fonts/`                               |
+| Checks and browser tests                   | `scripts/`, `tests/`, `pyproject.toml`, `typings/`                                                          |
+| Environment and deployment                 | `devenv.*`, `justfile`, `wrangler.jsonc`, `static/_headers`, `.forgejo/workflows/deploy.yaml`               |
 
 `_site/` and compiler caches are generated and untracked. Read
 [AGENTS.md](AGENTS.md) before automated edits; font provenance is in
