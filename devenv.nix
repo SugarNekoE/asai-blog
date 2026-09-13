@@ -2,6 +2,9 @@
 
 {
   env = pkgs.lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
+    LANG = "en_US.UTF-8";
+    LC_ALL = "en_US.UTF-8";
+    LOCALE_ARCHIVE = "${pkgs.glibcLocales}/lib/locale/locale-archive";
     CHROMIUM_PATH = pkgs.lib.getExe pkgs.chromium;
     MINIFLARE_WORKERD_PATH = toString (
       pkgs.writeShellScript "asai-workerd" ''

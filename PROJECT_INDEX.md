@@ -22,6 +22,7 @@ linters, Python browser tests, and Chromium.
 
 Devenv enables Corepack, which selects the pnpm version pinned in `package.json`.
 Keep pnpm on version 11 for compatibility with the Nix runner's Linux environment.
+Devenv supplies a UTF-8 locale on Linux so builds do not depend on container locale settings.
 
 ## Write notes
 
