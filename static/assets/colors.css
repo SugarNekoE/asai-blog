@@ -75,24 +75,12 @@
   --tag-color: var(--tag-default);
 }
 
-[data-tag='haskell'] {
-  --tag-color: var(--monokai-pro-purple);
+[data-tag='philosophy'] {
+  --tag-color: var(--monokai-pro-green)
 }
 
-[data-tag='elm'] {
+[data-tag='programming']
+[data-tag='skills']
+[data-tag='ai'] {
   --tag-color: var(--monokai-pro-blue);
-}
-
-[data-tag='systems'],
-[data-tag='nix'] {
-  --tag-color: var(--monokai-pro-orange);
-}
-
-[data-tag='web'] {
-  --tag-color: var(--monokai-pro-green);
-}
-
-[data-tag='notes'],
-[data-tag='obsidian'] {
-  --tag-color: var(--monokai-pro-yellow);
 }
