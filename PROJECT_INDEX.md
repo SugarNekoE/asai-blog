@@ -1,72 +1,90 @@
 # Asai Blog
 
-Static blog built with Hakyll, Pandoc, and Elm. Content is authored in an
-Obsidian vault; the generated site can be uploaded to Cloudflare Pages.
+A technical notebook for `sne.moe`: write in Obsidian, generate pages with
+Hakyll/Pandoc, browse with Elm, and host on Cloudflare Pages.
 
-| Path                                                                          | Purpose                                                                      |
-| ----------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| `AGENTS.md`                                                                   | Project conventions, validation, and commit rules                            |
-| `devenv.nix`, `devenv.yaml`, `devenv.lock`                                    | Development environment and pinned dependencies                              |
-| `justfile`                                                                    | Build, development, formatting, testing, and deployment commands             |
-| `scripts/`                                                                    | Build entrypoints, artifact checks, and font generation                      |
-| `pyproject.toml`                                                              | Strict Python checks and pytest configuration                                |
-| `eslint.config.js`                                                            | JavaScript lint rules for browser adapters and tooling                       |
-| `typings/fontTools/`                                                          | Type stubs for the FontTools APIs used by the font generator                 |
-| `site.hs`, `asai-blog.cabal`, `cabal.project`                                 | Hakyll compiler and Haskell package configuration                            |
-| `content/posts/<category>/`                                                   | Markdown notes; only `status: published` is published                        |
-| `content/attachments/`                                                        | Public attachments copied to the site                                        |
-| `content/templates/`, `content/.obsidian/`                                    | Obsidian authoring template and settings                                     |
-| `src/Site/Page.hs`, `src/Site/Views.hs`                                       | Typed Haskell page shell and static content views                            |
-| `src/Site/Markdown.hs`                                                        | Markdown transforms and compiled article-outline metadata                    |
-| `src/Site/Bootstrap.hs`                                                       | Typed page metadata and safely encoded bootstrap JSON                        |
-| `src/Site/Styles.hs`, `src/Site/Styles/`                                      | Clay-generated base, article, code, loading, and print styles                |
-| `frontend/src/Main.elm`                                                       | Application state, updates, and view composition                             |
-| `frontend/src/Startup.elm`, `frontend/src/Startup/`                           | elm/http startup worker, index validation, font requests, and loading stages |
-| `frontend/src/CodeBlock.elm`                                                  | Elm copy-button components, feedback, and reset timers                       |
-| `frontend/src/Panels.elm`                                                     | Exclusive panel state and focus/scroll destinations                          |
-| `frontend/src/BrowserPorts.elm`                                               | Typed interface to native browser adapters                                   |
-| `frontend/src/Keyboard.elm`, `frontend/src/BrowserClock.elm`                  | Shortcut policies and browser-local clock logic                              |
-| `frontend/src/Post.elm`                                                       | Note metadata and JSON decoding                                              |
-| `frontend/src/Notebook.elm`, `frontend/src/Notebook/`                         | Index composition, queries, cards, filters, and pagination                   |
-| `frontend/src/Layout.elm`                                                     | Navigation, headers, footer, and article outline                             |
-| `frontend/src/SearchLauncher.elm`, `frontend/src/Keymap.elm`                  | Search and shortcut dialogs                                                  |
-| `frontend/src/IndexQuery.elm`, `frontend/src/Search.elm`                      | URL state and query matching                                                 |
-| `frontend/src/LinkHints.elm`, `frontend/src/LinkHints/`                       | Hint eligibility, geometry, label selection, and letter assignment           |
-| `static/assets/colors.css`                                                    | Monokai Pro palette and tag color mappings                                   |
-| `frontend/src/Styles/`                                                        | Scoped elm-css component styles, typography, and responsive helpers          |
-| `static/assets/fonts.css`, `static/assets/noto.css`, `static/assets/fonts/`   | Noto font stacks, generated faces, and bundled fonts                         |
-| `static/assets/boot.js`                                                       | Browser entry point                                                          |
-| `static/assets/browser/runtime.js`, `static/assets/browser/page.js`           | Native Elm initialization, page data, storage, and history adapters          |
-| `static/assets/browser/clipboard.js`, `static/assets/browser/link-targets.js` | Clipboard access and native DOM measurement/hit testing                      |
-| `static/assets/browser/`                                                      | Native focus, keyboard, modal, asset, and trusted-content adapters           |
-| `tests/test_*.py`                                                             | Python Playwright browser tests                                              |
-| `tests/conftest.py`, `tests/helpers.py`, `tests/cdp.py`                       | Browser/server fixtures, request gates, and typed Chromium inspection        |
-| `wrangler.jsonc`, `static/_headers`                                           | Cloudflare Pages configuration and HTTP headers                              |
-| `_site/`                                                                      | Generated website; excluded from Git                                         |
+## Start locally
 
-Use `devenv shell`, then `npm ci` and `just dev`. Run `just --list` for available
-commands. `just check` verifies generated output; `just test` also runs the Python
-browser suite. Devenv provides pytest, Playwright, four-worker test execution,
-and a Chromium executable through `CHROMIUM_PATH` on Linux.
+From the repository root:
 
-Use `just test-browser` against an existing build, or select scenarios with
-`just test-browser tests/test_search.py -k 'focus or keyboard'`. Use `-n 0` for
-serial debugging. Each worker serves `_site/` on an available local port;
-screenshots, PDFs, and failure traces go to `test-results/`.
+```bash
+devenv shell
+pnpm install --frozen-lockfile
+just dev
+```
 
-Run `just ui` after editing Elm or its styles. Restart `just dev` after editing
-Haskell modules, including Clay styles. The startup worker, main interface, and
-copy-button components compile into one bundle. Hakyll emits the Clay stylesheets
-directly into `_site/assets/`.
+Open the local address printed by `just dev`. Run `just ui` after Elm edits;
+restart `just dev` after Haskell or Clay edits. Devenv supplies the compilers,
+linters, Python browser tests, and Chromium.
 
-`cabal.project` points Cabal and HLS at the compiler in `.devenv/profile`, including
-its Nix-provided libraries. Initialize the profile with `devenv shell` and restart
-the editor's Haskell language server after changing dependencies.
+Devenv enables Corepack, which selects the pnpm version pinned in `package.json`.
 
-Run `just format` to format source files, `just check-format` to check formatting,
-or `just lint` for formatting, strict Python checks, ESLint, and ShellCheck.
-`just check` also compiles Elm and Haskell and verifies the generated site.
-Elm uses `elm-format`'s standard two blank lines between top-level declarations.
+## Write notes
 
-See [font sources and licenses](static/assets/fonts/SOURCES.md) for bundled font
-provenance and regeneration. Deployment is manual; no GitHub workflow is included.
+Open `content/` as an Obsidian vault. Enable the Templates core plugin and use
+`templates/Note.md`. Write in `posts/<category>/` with unique, stable filenames;
+the first folder determines the category. Change `status: draft` to
+`status: published` when ready for the website.
+
+Published notes cannot link to missing or unpublished notes. All attachments
+are public. Drafts are excluded from the website, but committing them to Git
+makes them accessible to anyone who can read the repository.
+
+## Commands
+
+Run these inside `devenv shell`. See `just --list` for everything available.
+
+| Command                                           | Purpose                                              |
+| ------------------------------------------------- | ---------------------------------------------------- |
+| `just build`                                      | Compile Elm and rebuild the static site cleanly      |
+| `just dev` / `just preview`                       | Watch locally / preview with Cloudflare routing      |
+| `just format` / `just check-format`               | Format source / check formatting                     |
+| `just lint`                                       | Formatting, Python, JavaScript, and shell checks     |
+| `just check`                                      | Lint, build, and verify output and compiler behavior |
+| `just test`                                       | Full checks plus browser tests                       |
+| `just test-browser tests/test_search.py -k focus` | Selected browser tests against the current build     |
+| `just deploy`                                     | Check, build, and upload to Cloudflare Pages         |
+
+Browser artifacts go to `test-results/`; use `-n 0` for serial test debugging.
+`just deploy-built` uploads the existing `_site/` without checks; CI uses it only
+once `just check` passes. Both deployment commands accept Wrangler options,
+such as `--branch main`.
+
+## Where things live
+
+| Area                                       | Files                                                                                         |
+| ------------------------------------------ | --------------------------------------------------------------------------------------------- |
+| Notes and authoring                        | `content/posts/`, `content/attachments/`, `content/templates/`, `content/.obsidian/`          |
+| Build, routes, JSON, feed                  | `site.hs`                                                                                     |
+| Static views, Markdown, bootstrap metadata | `src/Site/`                                                                                   |
+| Static/article/loading/print styles        | `src/Site/Styles/` and `src/Site/Styles.hs`                                                   |
+| App, navigation, search, note lists        | `frontend/src/` (`Main`, `Layout`, `Notebook`, `SearchLauncher`, `Panels`)                    |
+| Startup, copy controls, keyboard, hints    | `frontend/src/Startup/`, `CodeBlock.elm`, `Keyboard.elm`, `LinkHints/`                        |
+| Interactive styles                         | `frontend/src/Styles/`                                                                        |
+| Browser adapters, palette, fonts           | `static/assets/`: `browser/`, `colors.css`, `fonts.css`, `noto.css`, `fonts/`                 |
+| Checks and browser tests                   | `scripts/`, `tests/`, `pyproject.toml`, `typings/`                                            |
+| Environment and deployment                 | `devenv.*`, `justfile`, `wrangler.jsonc`, `static/_headers`, `.forgejo/workflows/deploy.yaml` |
+
+`_site/` and compiler caches are generated and untracked. Read
+[AGENTS.md](AGENTS.md) before automated edits; font provenance is in
+[fonts/SOURCES.md](static/assets/fonts/SOURCES.md).
+
+## Deploy through Forgejo
+
+The [workflow](.forgejo/workflows/deploy.yaml) deploys pushes to `main` and manual
+runs on `main` to the **asai-blog** Cloudflare Pages project. It uses **acs-nix**,
+enables `nix-command`/`flakes`, installs Node before checkout, and runs the build
+through devenv. Keep `BOOTSTRAP_NIXPKGS` aligned with the nixpkgs revision in
+`devenv.lock`.
+
+Create the Pages project with production branch `main`, enable Forgejo Actions,
+and add these repository Actions secrets:
+
+| Secret                  | Value                                                                    |
+| ----------------------- | ------------------------------------------------------------------------ |
+| `CLOUDFLARE_API_TOKEN`  | Token with **Account → Cloudflare Pages → Edit**, scoped to your account |
+| `CLOUDFLARE_ACCOUNT_ID` | The account containing the Pages project                                 |
+
+Forgejo runs `pnpm install --frozen-lockfile` and `just check`, then uploads `_site/`. Configure the custom
+domain in Cloudflare. Use a separate Git branch to sync unfinished work without
+triggering production deployment. See [Cloudflare's CI setup guide](https://developers.cloudflare.com/pages/how-to/use-direct-upload-with-continuous-integration/).
