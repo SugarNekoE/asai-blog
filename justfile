@@ -34,7 +34,7 @@ check-format:
 
 # Lint source files; Elm and Haskell compiler checks also run in `just check`.
 lint: check-format check-python
-    ./node_modules/.bin/eslint --max-warnings 0 static/assets *.js
+    pnpm exec eslint --max-warnings 0 static/assets *.js
     shellcheck scripts/*.sh .envrc
 
 fonts noto cjk:
@@ -51,8 +51,8 @@ test-browser *args:
 
 # Run the output locally with Cloudflare's Pages routing.
 preview: build
-    npx wrangler pages dev _site
+    pnpm exec wrangler pages dev _site
 
 # Publish to the Cloudflare Pages project configured in wrangler.jsonc.
 deploy: check
-    npx wrangler pages deploy _site
+    pnpm exec wrangler pages deploy _site

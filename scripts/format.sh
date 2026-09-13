@@ -28,9 +28,10 @@ case "${1:-write}" in
     ;;
 esac
 
-./node_modules/.bin/prettier "$prettier_mode" \
+pnpm exec prettier "$prettier_mode" \
   '.prettierrc.json' \
   '*.{md,json,jsonc,yaml}' \
+  '!pnpm-lock.yaml' \
   '.zed/*.json' \
   'content/**/*.{md,json,svg}' \
   'frontend/elm.json' \

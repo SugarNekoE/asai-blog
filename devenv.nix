@@ -5,10 +5,13 @@
     CHROMIUM_PATH = pkgs.lib.getExe pkgs.chromium;
     MINIFLARE_WORKERD_PATH = toString (
       pkgs.writeShellScript "asai-workerd" ''
+        workerd_path=$(${pkgs.nodejs_24}/bin/node -e '
+          const { createRequire } = require("node:module");
+          const fromWrangler = createRequire(require.resolve("wrangler/package.json"));
+          process.stdout.write(fromWrangler("workerd").default);
+        ')
         exec ${pkgs.stdenv.cc.bintools.dynamicLinker} \
-          "$PWD/node_modules/@cloudflare/workerd-linux-${
-            if pkgs.stdenv.hostPlatform.isAarch64 then "arm64" else "64"
-          }/bin/workerd" "$@"
+          "$workerd_path" "$@"
       ''
     );
   };
