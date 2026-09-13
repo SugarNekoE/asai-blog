@@ -79,6 +79,7 @@
   --tag-color: var(--monokai-pro-green);
 }
 
-[data-tag='programming'] [data-tag='skills'] [data-tag='ai'] {
+[data-tag='skills'],
+[data-tag='ai'] {
   --tag-color: var(--monokai-pro-blue);
 }
