@@ -62,12 +62,6 @@ styles = do
   ".brand-mark" ? do
     "font" -: "40px/1 var(--mono)"
     color (token "accent")
-  ".brand small" ? do
-    display block
-    "font" -: "9px/1.8 var(--mono)"
-    color (token "muted")
-    letterSpacing (px 2.6)
-    marginTop (px 3)
   "html.search-open" ? do
     overflow hidden
   "kbd" ? do

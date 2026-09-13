@@ -85,12 +85,6 @@ sidebarLabel =
         , justifyContent spaceBetween
         , padding2 (px 0) (px 10)
         , marginBottom (px 14)
-        , Global.descendants
-            [ Global.selector "span"
-                [ fontSize (px 15)
-                , property "line-height" "10px"
-                ]
-            ]
         ]
 
 

@@ -241,10 +241,6 @@ sidebar actions model =
             , span
                 []
                 [ text "Asai Blog"
-                , small
-                    []
-                    [ text "FIELD NOTES"
-                    ]
                 ]
             ]
         , button
@@ -258,7 +254,7 @@ sidebar actions model =
             , span [] [ text "Search notes" ]
             , kbd [] [ text "/" ]
             ]
-        , div [ class "sidebar-label", css [ SidebarStyles.sidebarLabel ] ] [ text "EXPLORER", span [] [ text "···" ] ]
+        , div [ class "sidebar-label", css [ SidebarStyles.sidebarLabel ] ] [ text "EXPLORER" ]
         , nav [ attribute "aria-label" "Main navigation" ]
             [ a
                 [ href "/"
