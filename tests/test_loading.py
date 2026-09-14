@@ -84,16 +84,19 @@ def test_stalled_startup_times_out_to_the_static_page_without_a_late_takeover(
 def test_invalid_index_contracts_reveal_the_static_article_instead_of_mounting_elm(
     page: Page,
 ) -> None:
+    page.goto("/")
+    expect(page.locator(".workspace")).to_be_visible()
+    page.locator(".post-row h3 a").first.click()
+    title = page.locator(".prose h1").inner_text()
+    url = page.url
     indexes: list[dict[str, object]] = [
         {"version": 99, "posts": []},
         {"version": 2, "posts": "invalid"},
     ]
     for index in indexes:
         page.route("**/api/posts.json", fulfill_json(index))
-        page.goto("/posts/plain-text-to-a-small-web/")
-        expect(page.locator("#static-content h1")).to_have_text(
-            "From plain text to a small, personal web"
-        )
+        page.goto(url)
+        expect(page.locator("#static-content h1")).to_have_text(title)
         expect(page.locator("#static-content")).to_be_visible()
         expect(page.locator("#loading-screen")).to_have_count(0)
         expect(page.locator("#app")).to_have_js_property("inert", False)

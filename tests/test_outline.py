@@ -22,6 +22,7 @@ def test_wide_screen_outline_uses_right_gutter_without_shifting_article(
         page.locator(".post-row h3 a").first.click()
         outline = page.locator(".page-outline")
         expect(outline).to_be_visible()
+        expect(outline).to_have_css("background-color", "rgba(0, 0, 0, 0)")
         article = bounds(page.locator(".prose"))
         panel = bounds(outline)
         assert abs(article["x"] - index["x"]) < 1

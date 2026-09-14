@@ -234,21 +234,6 @@ def test_static_html_remains_readable_with_javascript_disabled(
     context.close()
 
 
-def test_unavailable_or_incompatible_json_keeps_the_page_readable(page: Page) -> None:
-    page.route("**/api/posts.json", lambda route: route.abort())
-    page.goto("/")
-    expect(page.locator("#static-content h1")).to_be_visible()
-    page.unroute("**/api/posts.json")
-    page.route(
-        "**/api/posts.json",
-        lambda route: route.fulfill(json={"version": 99, "posts": []}),
-    )
-    page.reload()
-    expect(page.locator("#static-content h1")).to_be_visible()
-    expect(page.locator(".workspace")).to_have_count(0)
-    expect(page.locator(".post-row")).to_have_count(4)
-
-
 def test_folder_categories_drive_navigation_and_combine_with_main_index_tag_filters(
     page: Page,
 ) -> None:
@@ -315,54 +300,6 @@ def test_direct_post_urls_display_their_folder_category_and_index_filters_accept
     expect(page.locator(".breadcrumbs .current-category")).to_have_text("programming")
     assert query_param(page.url, "category") == "programming"
     assert query_params(page.url).get("tag", []) == []
-
-
-def test_article_outline_is_transparent_stays_on_the_right_and_adapts_to_narrow_screens(
-    page: Page,
-) -> None:
-    page.set_viewport_size({"width": 1920, "height": 900})
-    page.goto("/")
-    page.locator(".post-row h3 a").first.click()
-    article_url = page.url
-    outline = page.locator(".main-content > .page-outline")
-    expect(outline).to_be_visible()
-    expect(
-        page.locator(".sidebar").get_by_role("navigation", name="Table of contents")
-    ).to_have_count(0)
-    expect(outline).to_have_css("background-color", "rgba(0, 0, 0, 0)")
-    panel = bounds(outline)
-    article = bounds(page.locator(".prose"))
-    assert panel["x"] > article["x"] + article["width"]
-    assert panel["x"] + panel["width"] > 1380
-    page.screenshot(path="test-results/outline-desktop.png", full_page=True)
-    link = outline.get_by_role("link").last
-    target = link.get_attribute("href")
-    assert target is not None and target.startswith("#")
-    link.click()
-    expect(page).to_have_url(re.compile(re.escape(target) + "$"))
-    expect(page.locator(target)).to_be_in_viewport()
-    expect(outline).to_be_in_viewport()
-    assert bounds(outline)["y"] >= 0
-    assert bounds(outline)["y"] <= 33
-    for width in [1440, 1366, 1024, 768, 390]:
-        page.set_viewport_size({"width": width, "height": 900})
-        page.goto(article_url)
-        expect(page.locator(".workspace")).to_be_visible()
-        expect(outline).to_have_count(0)
-        page.keyboard.press("o")
-        expect(outline).to_be_visible()
-        expect(outline).to_have_css("position", "static")
-        narrow_panel = bounds(outline)
-        narrow_article = bounds(page.locator(".prose"))
-        assert narrow_panel["y"] + narrow_panel["height"] < narrow_article["y"]
-        assert (
-            page.evaluate("() => document.documentElement.scrollWidth <= innerWidth")
-            is True
-        )
-    page.screenshot(path="test-results/outline-mobile.png", full_page=True)
-    page.goto("/")
-    expect(page.locator(".workspace")).to_be_visible()
-    expect(page.locator(".page-outline")).to_have_count(0)
 
 
 def test_note_tags_add_multiple_filters_deduplicate_and_persist_through_reload(

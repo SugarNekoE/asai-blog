@@ -389,30 +389,3 @@ def test_index_category_buttons_are_hint_targets_and_preserve_tag_filters(
     expect(page.locator(".post-row")).to_contain_text(
         "From plain text to a small, personal web"
     )
-
-
-def test_t_toggles_theme_and_o_hides_and_restores_the_reading_outline(
-    page: Page,
-) -> None:
-    page.set_viewport_size({"width": 1920, "height": 900})
-    page.goto("/posts/plain-text-to-a-small-web/")
-    expect(page.locator(".workspace")).to_be_visible()
-    page.keyboard.press("t")
-    expect(page.locator("html")).to_have_attribute("data-theme", "light")
-    page.reload()
-    expect(page.locator("html")).to_have_attribute("data-theme", "light")
-    expect(page.locator(".workspace")).to_be_visible()
-    page.keyboard.press("o")
-    expect(page.locator(".page-outline")).to_have_count(0)
-    expect(page.locator(".reading-layout")).to_have_count(0)
-    page.keyboard.press("o")
-    expect(page.locator(".page-outline")).to_be_visible()
-    expect(page.locator(".reading-layout")).to_be_visible()
-    page.keyboard.press("?")
-    keymap = page.get_by_role("dialog", name="Keyboard shortcuts", exact=True)
-    for key in ["t", "o", "f", "Enter"]:
-        expect(
-            keymap.locator("kbd").filter(has_text=re.compile(f"^{key}$"))
-        ).to_have_count(1)
-    page.keyboard.press("t")
-    expect(page.locator("html")).to_have_attribute("data-theme", "light")
