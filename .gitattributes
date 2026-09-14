@@ -1,0 +1,4 @@
+# Keep development tooling and tests out of application language statistics.
+/tests/** linguist-detectable=false
+/scripts/** linguist-detectable=false
+/typings/** linguist-detectable=false
