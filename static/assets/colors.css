@@ -80,6 +80,12 @@
   --tag-color: var(--monokai-pro-green);
 }
 
+[data-tag='system'] {
+  --tag-color: var(--monokai-pro-red);
+}
+
+[data-tag='nix'],
+[data-tag='nixos'],
 [data-tag='skills'],
 [data-tag='ai'] {
   --tag-color: var(--monokai-pro-blue);
