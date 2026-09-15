@@ -76,12 +76,21 @@
   --tag-color: var(--tag-default);
 }
 
+[data-tag='git'],
 [data-tag='philosophy'] {
   --tag-color: var(--monokai-pro-green);
 }
 
 [data-tag='system'] {
   --tag-color: var(--monokai-pro-red);
+}
+
+[data-tag='aliyun'] {
+  --tag-color: var(--monokai-pro-orange);
+}
+
+[data-tag='infrastructure'] {
+  --tag-color: var(--monokai-pro-yellow);
 }
 
 [data-tag='nix'],
