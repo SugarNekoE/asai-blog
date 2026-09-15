@@ -1,7 +1,7 @@
 ---
 title: One-Job actions runner on Serverless Cluster
 description: An exploration of building a one-job Forgejo Actions Runner architecture using serverless Kubernetes and ephemeral OCI environments.
-date: 2026-09-13
+date: 2026-09-16
 tags:
   - infrastructure
   - aliyun
