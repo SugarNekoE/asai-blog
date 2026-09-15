@@ -5,7 +5,7 @@ date: 2026-09-13
 tags:
   - infrastructure
   - aliyun
-status: draft
+status: published
 ---
 
 ## The idea
