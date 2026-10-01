@@ -10,7 +10,7 @@ concurrency:
 jobs:
   deploy:
     if: forgejo.ref == 'refs/heads/main'
-    runs-on: acs-nix
+    runs-on: nixos-latest
     timeout-minutes: 60
     env:
       CI: 'true'
