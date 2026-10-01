@@ -15,7 +15,6 @@ jobs:
     env:
       CI: 'true'
       NIX_CONFIG: |
-        extra-experimental-features = nix-command flakes
         sandbox = false
       BOOTSTRAP_NIXPKGS: github:cachix/devenv-nixpkgs/256551e45f6303e142ab4a98be1bf243feb77dc0
     steps:
